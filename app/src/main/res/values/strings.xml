@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Bump</string>
+    <string name="widget_description">Current pregnancy week at a glance</string>
+</resources>
