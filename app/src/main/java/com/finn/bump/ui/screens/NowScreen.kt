@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -22,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -54,6 +56,12 @@ fun NowScreen(state: AppState, vm: BumpViewModel, modifier: Modifier = Modifier)
     val toGo = Pregnancy.daysToGo(due, today)
     val info = weeks[week]
     var editing by remember { mutableStateOf(false) }
+    var showingSizes by remember { mutableStateOf(false) }
+
+    if (showingSizes) {
+        SizesScreen(state, vm, onBack = { showingSizes = false }, modifier = modifier)
+        return
+    }
 
     Surface(color = MaterialTheme.colorScheme.background) {
         Column(
@@ -97,21 +105,36 @@ fun NowScreen(state: AppState, vm: BumpViewModel, modifier: Modifier = Modifier)
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            MoonCard {
+            MoonCard(Modifier.clickable(onClickLabel = "See every week") { showingSizes = true }) {
                 Text("About the size of", style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(info.size, style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.primary)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.p2),
+                ) {
+                    if (info.emoji != null) Text(info.emoji, fontSize = 32.sp)
+                    Text(info.size, style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.primary)
+                }
 
-                val measure = if (info.measuresCrownToHeel) "head to heel" else "head to bottom"
-                val length = info.lengthCm?.let { "%.1f cm $measure".format(Locale.UK, it) }
-                val weight = info.weightG?.let { formatWeight(it) }
-                val figures = listOfNotNull(length, weight)
-                if (figures.isNotEmpty()) {
+                if (info.figures.isNotEmpty()) {
                     Text(
-                        figures.joinToString("  ·  "),
+                        info.figures,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "See every week",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Icon(
+                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp),
                     )
                 }
             }
@@ -186,9 +209,6 @@ private fun NextAppointment(state: AppState) {
         }
     }
 }
-
-private fun formatWeight(grams: Int): String =
-    if (grams < 1000) "$grams g" else "%.2f kg".format(Locale.UK, grams / 1000.0)
 
 private fun countdownText(daysToGo: Int): String = when {
     daysToGo > 1 -> "$daysToGo days to go"

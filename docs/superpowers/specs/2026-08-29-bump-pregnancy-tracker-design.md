@@ -123,6 +123,14 @@ Length figures follow the standard convention: crown-rump length up to week 20 a
 crown-heel length from week 21, which is why the number appears to jump at that point.
 The UI states which measurement it is showing.
 
+Each week also carries an optional `emoji`, set only where one genuinely depicts the
+object named — about two thirds of them. A wrong picture is worse than no picture, and
+shipping 41 drawings for the rest is not worth an APK, so the **Sizes screen draws the
+measurement instead** and the emoji is a garnish on top of it.
+
+Lengths below a centimetre are rendered in millimetres. `"%.1f cm"` turns every early
+week into "0.0 cm", which reads as no baby at all.
+
 Sizes and figures are population averages for orientation only. The app shows a
 permanent, non-dismissible line on the Now screen: *"General information only — not
 medical advice. Talk to your midwife or doctor about your pregnancy."* This is not
@@ -202,6 +210,15 @@ date and let the app add 280 days. Uses the M3 `DatePicker`.
   with `primary`
 - Tapping a day expands its detail underneath: gestational age, saved appointments, and
   any milestone windows covering it
+
+**Sizes** — reached by tapping the size card on Now, not a fifth tab:
+- Every measured week, 3 to 40, opening on the week you are in and marked "You are here"
+- Emoji where one exists, and for every week a measured bar with end caps, so it reads
+  as a length rather than a progress bar
+- Two scales: *To scale* draws every week against week 40, so scrolling shows the growth;
+  *Actual size* draws real centimetres using the display's reported `xdpi`. That figure
+  is approximate on many devices and the later weeks run off the edge, so the screen
+  says both rather than claiming precision it does not have
 
 **Log**:
 - Appointments — title, date/time, optional note; upcoming sorted first, past collapsed
@@ -289,7 +306,7 @@ and gaps.
 
 ## Widget
 
-Glance `GlanceAppWidget`, showing `Week 22 · Papaya · 126 days to go` plus a progress
+Glance `GlanceAppWidget`, showing `Week 22 · 🥭 Papaya · 126 days to go` plus a progress
 bar, tappable to open the app. Resizable; the smallest size drops to week and
 countdown only.
 

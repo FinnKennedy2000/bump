@@ -1,8 +1,9 @@
 # Bump
 
 An offline Android pregnancy tracker. Week-by-week size and development info, a
-countdown, the typical NHS antenatal schedule on a calendar, the baby's name and sex as
-you learn them, appointments, kick counting, weight and notes, plus a homescreen widget.
+countdown, a to-scale size screen for every week, the typical NHS antenatal schedule on
+a calendar, the baby's name and sex as you learn them, appointments, kick counting,
+weight and notes, plus a homescreen widget.
 
 Personal app, sideloaded. No accounts, no backend, no analytics, and no `INTERNET`
 permission.
@@ -70,6 +71,9 @@ instrumentation tests.
 
 Sizes, lengths and weights are population averages for orientation only. Lengths are
 crown-rump to week 20 and crown-heel from week 21, which is why the figure jumps there.
+The Sizes screen draws each week's actual measurement; the emoji next to it is only set
+where one genuinely depicts the fruit or vegetable named, since a wrong picture is worse
+than none.
 
 The calendar shows the typical NHS antenatal pathway (England, NICE NG201) as week
 windows, not booked appointments. They are suggestions of what usually happens when;

@@ -6,7 +6,13 @@ import org.junit.Test
 class WeekTableTest {
 
     private val table = WeekTable(
-        (0..40).map { WeekInfo(it, "size-$it", it.toDouble(), it * 10, "blurb-$it") }
+        (0..40).map { WeekInfo(
+            week = it,
+            size = "size-$it",
+            lengthCm = it.toDouble(),
+            weightG = it * 10,
+            blurb = "blurb-$it",
+        ) }
     )
 
     @Test

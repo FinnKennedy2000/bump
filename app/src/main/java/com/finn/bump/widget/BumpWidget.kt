@@ -16,6 +16,7 @@ import androidx.glance.action.actionStartActivity
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
+import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
@@ -77,10 +78,25 @@ class BumpWidget : GlanceAppWidget() {
                             fontWeight = FontWeight.Bold,
                         ),
                     )
-                    Text(
-                        weeks[week].size,
-                        style = TextStyle(color = ColorProvider(Moon.Piccolo), fontWeight = FontWeight.Medium),
-                    )
+                    val info = weeks[week]
+                    Row(verticalAlignment = Alignment.Vertical.CenterVertically) {
+                        // Only about two thirds of the weeks have an emoji that genuinely
+                        // depicts the thing named; the rest show the name alone.
+                        if (info.emoji != null) {
+                            Text(
+                                info.emoji,
+                                style = TextStyle(fontSize = 18.sp),
+                                modifier = GlanceModifier.padding(end = 4.dp),
+                            )
+                        }
+                        Text(
+                            info.size,
+                            style = TextStyle(
+                                color = ColorProvider(Moon.Piccolo),
+                                fontWeight = FontWeight.Medium,
+                            ),
+                        )
+                    }
                     Text(
                         countdown(toGo),
                         style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant),

@@ -1,289 +1,315 @@
 [
- {
-  "week": 0,
-  "size": "Not yet",
-  "lengthCm": null,
-  "weightG": null,
-  "blurb": "Week 0 is the first day of your last period. There is no baby yet — dating starts here because it is the one date that can be pinned down reliably."
- },
- {
-  "week": 1,
-  "size": "Not yet",
-  "lengthCm": null,
-  "weightG": null,
-  "blurb": "Still counting from your last period. Ovulation is roughly a fortnight away."
- },
- {
-  "week": 2,
-  "size": "Not yet",
-  "lengthCm": null,
-  "weightG": null,
-  "blurb": "Ovulation happens around now. Conception, when it happens, is usually dated to this week."
- },
- {
-  "week": 3,
-  "size": "Poppy seed",
-  "lengthCm": 0.01,
-  "weightG": null,
-  "blurb": "A fertilised egg is dividing as it travels to the uterus and implants. Far too small to see."
- },
- {
-  "week": 4,
-  "size": "Poppy seed",
-  "lengthCm": 0.1,
-  "weightG": null,
-  "blurb": "Implantation is complete and the pregnancy hormone hCG starts rising — this is when a test usually turns positive."
- },
- {
-  "week": 5,
-  "size": "Sesame seed",
-  "lengthCm": 0.2,
-  "weightG": null,
-  "blurb": "The neural tube, which becomes the brain and spinal cord, is forming. The heart is a simple tube that has just begun to beat."
- },
- {
-  "week": 6,
-  "size": "Lentil",
-  "lengthCm": 0.4,
-  "weightG": null,
-  "blurb": "Facial features start as small folds. Arm and leg buds appear. A heartbeat may be visible on an early scan."
- },
- {
-  "week": 7,
-  "size": "Blueberry",
-  "lengthCm": 1.0,
-  "weightG": 1,
-  "blurb": "The brain is growing fast. Hands and feet look like paddles. The umbilical cord is fully formed."
- },
- {
-  "week": 8,
-  "size": "Raspberry",
-  "lengthCm": 1.6,
-  "weightG": 1,
-  "blurb": "All the essential organs have begun to form. Fingers and toes are webbed but distinct."
- },
- {
-  "week": 9,
-  "size": "Grape",
-  "lengthCm": 2.3,
-  "weightG": 2,
-  "blurb": "The embryo is officially a fetus this week. Tiny muscles allow the first movements, far too faint to feel."
- },
- {
-  "week": 10,
-  "size": "Kumquat",
-  "lengthCm": 3.1,
-  "weightG": 4,
-  "blurb": "Vital organs are in place and starting to work. Nails begin forming and bones are hardening."
- },
- {
-  "week": 11,
-  "size": "Fig",
-  "lengthCm": 4.1,
-  "weightG": 7,
-  "blurb": "The head is still about half the total length. Tooth buds are appearing and fingers and toes have separated."
- },
- {
-  "week": 12,
-  "size": "Lime",
-  "lengthCm": 5.4,
-  "weightG": 14,
-  "blurb": "Reflexes are developing — fingers can curl. The 12-week dating scan usually happens around now."
- },
- {
-  "week": 13,
-  "size": "Pea pod",
-  "lengthCm": 7.4,
-  "weightG": 23,
-  "blurb": "Start of the second trimester. Vocal cords are forming and fingerprints have appeared."
- },
- {
-  "week": 14,
-  "size": "Lemon",
-  "lengthCm": 8.7,
-  "weightG": 43,
-  "blurb": "The baby can squint, frown and grimace. Fine downy hair called lanugo covers the body."
- },
- {
-  "week": 15,
-  "size": "Apple",
-  "lengthCm": 10.1,
-  "weightG": 70,
-  "blurb": "Bones are hardening quickly. The baby can sense light through closed eyelids."
- },
- {
-  "week": 16,
-  "size": "Avocado",
-  "lengthCm": 11.6,
-  "weightG": 100,
-  "blurb": "Facial muscles allow expressions. The heart pumps around 25 litres of blood a day."
- },
- {
-  "week": 17,
-  "size": "Turnip",
-  "lengthCm": 13.0,
-  "weightG": 140,
-  "blurb": "Fat stores begin forming under the skin. The skeleton is shifting from cartilage to bone."
- },
- {
-  "week": 18,
-  "size": "Bell pepper",
-  "lengthCm": 14.2,
-  "weightG": 190,
-  "blurb": "Hearing is developing — the baby may start to register sounds. Many people feel the first movements around now."
- },
- {
-  "week": 19,
-  "size": "Heirloom tomato",
-  "lengthCm": 15.3,
-  "weightG": 240,
-  "blurb": "A waxy coating called vernix now protects the skin. The senses are developing rapidly."
- },
- {
-  "week": 20,
-  "size": "Banana",
-  "lengthCm": 16.4,
-  "weightG": 300,
-  "blurb": "Halfway. The anomaly scan usually happens this week. From next week length is measured crown to heel, so the number jumps."
- },
- {
-  "week": 21,
-  "size": "Carrot",
-  "lengthCm": 26.7,
-  "weightG": 360,
-  "blurb": "Measurement switches to full length, crown to heel. The baby swallows small amounts of amniotic fluid daily."
- },
- {
-  "week": 22,
-  "size": "Papaya",
-  "lengthCm": 27.8,
-  "weightG": 430,
-  "blurb": "Eyebrows and eyelashes are visible. Grip is developing and the sense of touch is sharpening."
- },
- {
-  "week": 23,
-  "size": "Grapefruit",
-  "lengthCm": 28.9,
-  "weightG": 501,
-  "blurb": "Hearing is good enough to pick up your voice. Skin is still wrinkled while fat fills out underneath."
- },
- {
-  "week": 24,
-  "size": "Ear of corn",
-  "lengthCm": 30.0,
-  "weightG": 600,
-  "blurb": "A milestone week: lungs are developing the branches needed to breathe air."
- },
- {
-  "week": 25,
-  "size": "Swede",
-  "lengthCm": 34.6,
-  "weightG": 660,
-  "blurb": "The baby is putting on fat steadily. Hair is growing and beginning to show colour and texture."
- },
- {
-  "week": 26,
-  "size": "Spring onions",
-  "lengthCm": 35.6,
-  "weightG": 760,
-  "blurb": "Eyes open for the first time. Lungs are practising breathing movements with amniotic fluid."
- },
- {
-  "week": 27,
-  "size": "Cauliflower",
-  "lengthCm": 36.6,
-  "weightG": 875,
-  "blurb": "End of the second trimester. Sleeping and waking patterns are becoming regular and hiccups are common."
- },
- {
-  "week": 28,
-  "size": "Aubergine",
-  "lengthCm": 37.6,
-  "weightG": 1005,
-  "blurb": "Third trimester. The brain is developing deep grooves and the baby can now dream."
- },
- {
-  "week": 29,
-  "size": "Butternut squash",
-  "lengthCm": 38.6,
-  "weightG": 1153,
-  "blurb": "Muscles and lungs are maturing. Kicks are getting noticeably stronger."
- },
- {
-  "week": 30,
-  "size": "Cabbage",
-  "lengthCm": 39.9,
-  "weightG": 1319,
-  "blurb": "Around a litre and a half of amniotic fluid surrounds the baby — this begins to reduce as space runs short."
- },
- {
-  "week": 31,
-  "size": "Coconut",
-  "lengthCm": 41.1,
-  "weightG": 1502,
-  "blurb": "All five senses are working. The baby is putting on weight quickly now."
- },
- {
-  "week": 32,
-  "size": "Squash",
-  "lengthCm": 42.4,
-  "weightG": 1702,
-  "blurb": "Fingernails and toenails have grown in. Most babies have turned head-down or will soon."
- },
- {
-  "week": 33,
-  "size": "Pineapple",
-  "lengthCm": 43.7,
-  "weightG": 1918,
-  "blurb": "Skull bones stay soft and separate to make the journey out easier. The immune system is developing."
- },
- {
-  "week": 34,
-  "size": "Cantaloupe",
-  "lengthCm": 45.0,
-  "weightG": 2146,
-  "blurb": "Fat continues to fill out under the skin. Lungs are nearly ready."
- },
- {
-  "week": 35,
-  "size": "Honeydew melon",
-  "lengthCm": 46.2,
-  "weightG": 2383,
-  "blurb": "The brain gains weight rapidly. Space is tight, so movements feel more like rolls than kicks."
- },
- {
-  "week": 36,
-  "size": "Romaine lettuce",
-  "lengthCm": 47.4,
-  "weightG": 2622,
-  "blurb": "The baby is likely head-down and settling into position. Weight gain is around 30g a day."
- },
- {
-  "week": 37,
-  "size": "Chard",
-  "lengthCm": 48.6,
-  "weightG": 2859,
-  "blurb": "Early term. The baby practises breathing, sucking and blinking, getting ready for the outside."
- },
- {
-  "week": 38,
-  "size": "Leek",
-  "lengthCm": 49.8,
-  "weightG": 3083,
-  "blurb": "Organs are mature and ready. The vernix and lanugo are mostly shed."
- },
- {
-  "week": 39,
-  "size": "Watermelon",
-  "lengthCm": 50.7,
-  "weightG": 3288,
-  "blurb": "Full term. The chest is becoming more prominent and the head is roughly the size of the chest."
- },
- {
-  "week": 40,
-  "size": "Pumpkin",
-  "lengthCm": 51.2,
-  "weightG": 3462,
-  "blurb": "Your due date. Only about 4 in 100 babies arrive on it — anywhere from 37 to 42 weeks is normal."
- }
+  {
+    "week": 0,
+    "size": "Not yet",
+    "lengthCm": null,
+    "weightG": null,
+    "blurb": "Week 0 is the first day of your last period. There is no baby yet — dating starts here because it is the one date that can be pinned down reliably."
+  },
+  {
+    "week": 1,
+    "size": "Not yet",
+    "lengthCm": null,
+    "weightG": null,
+    "blurb": "Still counting from your last period. Ovulation is roughly a fortnight away."
+  },
+  {
+    "week": 2,
+    "size": "Not yet",
+    "lengthCm": null,
+    "weightG": null,
+    "blurb": "Ovulation happens around now. Conception, when it happens, is usually dated to this week."
+  },
+  {
+    "week": 3,
+    "size": "Poppy seed",
+    "emoji": "⚫",
+    "lengthCm": 0.01,
+    "weightG": null,
+    "blurb": "A fertilised egg is dividing as it travels to the uterus and implants. Far too small to see."
+  },
+  {
+    "week": 4,
+    "size": "Poppy seed",
+    "emoji": "⚫",
+    "lengthCm": 0.1,
+    "weightG": null,
+    "blurb": "Implantation is complete and the pregnancy hormone hCG starts rising — this is when a test usually turns positive."
+  },
+  {
+    "week": 5,
+    "size": "Sesame seed",
+    "emoji": "⚪",
+    "lengthCm": 0.2,
+    "weightG": null,
+    "blurb": "The neural tube, which becomes the brain and spinal cord, is forming. The heart is a simple tube that has just begun to beat."
+  },
+  {
+    "week": 6,
+    "size": "Lentil",
+    "emoji": "🫘",
+    "lengthCm": 0.4,
+    "weightG": null,
+    "blurb": "Facial features start as small folds. Arm and leg buds appear. A heartbeat may be visible on an early scan."
+  },
+  {
+    "week": 7,
+    "size": "Blueberry",
+    "emoji": "🫐",
+    "lengthCm": 1.0,
+    "weightG": 1,
+    "blurb": "The brain is growing fast. Hands and feet look like paddles. The umbilical cord is fully formed."
+  },
+  {
+    "week": 8,
+    "size": "Raspberry",
+    "lengthCm": 1.6,
+    "weightG": 1,
+    "blurb": "All the essential organs have begun to form. Fingers and toes are webbed but distinct."
+  },
+  {
+    "week": 9,
+    "size": "Grape",
+    "emoji": "🍇",
+    "lengthCm": 2.3,
+    "weightG": 2,
+    "blurb": "The embryo is officially a fetus this week. Tiny muscles allow the first movements, far too faint to feel."
+  },
+  {
+    "week": 10,
+    "size": "Kumquat",
+    "emoji": "🍊",
+    "lengthCm": 3.1,
+    "weightG": 4,
+    "blurb": "Vital organs are in place and starting to work. Nails begin forming and bones are hardening."
+  },
+  {
+    "week": 11,
+    "size": "Fig",
+    "lengthCm": 4.1,
+    "weightG": 7,
+    "blurb": "The head is still about half the total length. Tooth buds are appearing and fingers and toes have separated."
+  },
+  {
+    "week": 12,
+    "size": "Lime",
+    "lengthCm": 5.4,
+    "weightG": 14,
+    "blurb": "Reflexes are developing — fingers can curl. The 12-week dating scan usually happens around now."
+  },
+  {
+    "week": 13,
+    "size": "Pea pod",
+    "emoji": "🫛",
+    "lengthCm": 7.4,
+    "weightG": 23,
+    "blurb": "Start of the second trimester. Vocal cords are forming and fingerprints have appeared."
+  },
+  {
+    "week": 14,
+    "size": "Lemon",
+    "emoji": "🍋",
+    "lengthCm": 8.7,
+    "weightG": 43,
+    "blurb": "The baby can squint, frown and grimace. Fine downy hair called lanugo covers the body."
+  },
+  {
+    "week": 15,
+    "size": "Apple",
+    "emoji": "🍎",
+    "lengthCm": 10.1,
+    "weightG": 70,
+    "blurb": "Bones are hardening quickly. The baby can sense light through closed eyelids."
+  },
+  {
+    "week": 16,
+    "size": "Avocado",
+    "emoji": "🥑",
+    "lengthCm": 11.6,
+    "weightG": 100,
+    "blurb": "Facial muscles allow expressions. The heart pumps around 25 litres of blood a day."
+  },
+  {
+    "week": 17,
+    "size": "Turnip",
+    "lengthCm": 13.0,
+    "weightG": 140,
+    "blurb": "Fat stores begin forming under the skin. The skeleton is shifting from cartilage to bone."
+  },
+  {
+    "week": 18,
+    "size": "Bell pepper",
+    "emoji": "🫑",
+    "lengthCm": 14.2,
+    "weightG": 190,
+    "blurb": "Hearing is developing — the baby may start to register sounds. Many people feel the first movements around now."
+  },
+  {
+    "week": 19,
+    "size": "Heirloom tomato",
+    "emoji": "🍅",
+    "lengthCm": 15.3,
+    "weightG": 240,
+    "blurb": "A waxy coating called vernix now protects the skin. The senses are developing rapidly."
+  },
+  {
+    "week": 20,
+    "size": "Banana",
+    "emoji": "🍌",
+    "lengthCm": 16.4,
+    "weightG": 300,
+    "blurb": "Halfway. The anomaly scan usually happens this week. From next week length is measured crown to heel, so the number jumps."
+  },
+  {
+    "week": 21,
+    "size": "Carrot",
+    "emoji": "🥕",
+    "lengthCm": 26.7,
+    "weightG": 360,
+    "blurb": "Measurement switches to full length, crown to heel. The baby swallows small amounts of amniotic fluid daily."
+  },
+  {
+    "week": 22,
+    "size": "Papaya",
+    "lengthCm": 27.8,
+    "weightG": 430,
+    "blurb": "Eyebrows and eyelashes are visible. Grip is developing and the sense of touch is sharpening."
+  },
+  {
+    "week": 23,
+    "size": "Grapefruit",
+    "lengthCm": 28.9,
+    "weightG": 501,
+    "blurb": "Hearing is good enough to pick up your voice. Skin is still wrinkled while fat fills out underneath."
+  },
+  {
+    "week": 24,
+    "size": "Ear of corn",
+    "emoji": "🌽",
+    "lengthCm": 30.0,
+    "weightG": 600,
+    "blurb": "A milestone week: lungs are developing the branches needed to breathe air."
+  },
+  {
+    "week": 25,
+    "size": "Swede",
+    "lengthCm": 34.6,
+    "weightG": 660,
+    "blurb": "The baby is putting on fat steadily. Hair is growing and beginning to show colour and texture."
+  },
+  {
+    "week": 26,
+    "size": "Spring onions",
+    "lengthCm": 35.6,
+    "weightG": 760,
+    "blurb": "Eyes open for the first time. Lungs are practising breathing movements with amniotic fluid."
+  },
+  {
+    "week": 27,
+    "size": "Cauliflower",
+    "lengthCm": 36.6,
+    "weightG": 875,
+    "blurb": "End of the second trimester. Sleeping and waking patterns are becoming regular and hiccups are common."
+  },
+  {
+    "week": 28,
+    "size": "Aubergine",
+    "emoji": "🍆",
+    "lengthCm": 37.6,
+    "weightG": 1005,
+    "blurb": "Third trimester. The brain is developing deep grooves and the baby can now dream."
+  },
+  {
+    "week": 29,
+    "size": "Butternut squash",
+    "lengthCm": 38.6,
+    "weightG": 1153,
+    "blurb": "Muscles and lungs are maturing. Kicks are getting noticeably stronger."
+  },
+  {
+    "week": 30,
+    "size": "Cabbage",
+    "emoji": "🥬",
+    "lengthCm": 39.9,
+    "weightG": 1319,
+    "blurb": "Around a litre and a half of amniotic fluid surrounds the baby — this begins to reduce as space runs short."
+  },
+  {
+    "week": 31,
+    "size": "Coconut",
+    "emoji": "🥥",
+    "lengthCm": 41.1,
+    "weightG": 1502,
+    "blurb": "All five senses are working. The baby is putting on weight quickly now."
+  },
+  {
+    "week": 32,
+    "size": "Squash",
+    "lengthCm": 42.4,
+    "weightG": 1702,
+    "blurb": "Fingernails and toenails have grown in. Most babies have turned head-down or will soon."
+  },
+  {
+    "week": 33,
+    "size": "Pineapple",
+    "emoji": "🍍",
+    "lengthCm": 43.7,
+    "weightG": 1918,
+    "blurb": "Skull bones stay soft and separate to make the journey out easier. The immune system is developing."
+  },
+  {
+    "week": 34,
+    "size": "Cantaloupe",
+    "emoji": "🍈",
+    "lengthCm": 45.0,
+    "weightG": 2146,
+    "blurb": "Fat continues to fill out under the skin. Lungs are nearly ready."
+  },
+  {
+    "week": 35,
+    "size": "Honeydew melon",
+    "emoji": "🍈",
+    "lengthCm": 46.2,
+    "weightG": 2383,
+    "blurb": "The brain gains weight rapidly. Space is tight, so movements feel more like rolls than kicks."
+  },
+  {
+    "week": 36,
+    "size": "Romaine lettuce",
+    "emoji": "🥬",
+    "lengthCm": 47.4,
+    "weightG": 2622,
+    "blurb": "The baby is likely head-down and settling into position. Weight gain is around 30g a day."
+  },
+  {
+    "week": 37,
+    "size": "Chard",
+    "emoji": "🥬",
+    "lengthCm": 48.6,
+    "weightG": 2859,
+    "blurb": "Early term. The baby practises breathing, sucking and blinking, getting ready for the outside."
+  },
+  {
+    "week": 38,
+    "size": "Leek",
+    "lengthCm": 49.8,
+    "weightG": 3083,
+    "blurb": "Organs are mature and ready. The vernix and lanugo are mostly shed."
+  },
+  {
+    "week": 39,
+    "size": "Watermelon",
+    "emoji": "🍉",
+    "lengthCm": 50.7,
+    "weightG": 3288,
+    "blurb": "Full term. The chest is becoming more prominent and the head is roughly the size of the chest."
+  },
+  {
+    "week": 40,
+    "size": "Pumpkin",
+    "emoji": "🎃",
+    "lengthCm": 51.2,
+    "weightG": 3462,
+    "blurb": "Your due date. Only about 4 in 100 babies arrive on it — anywhere from 37 to 42 weeks is normal."
+  }
 ]
