@@ -2,6 +2,7 @@ package com.finn.bump.ui
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.ChildCare
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Favorite
@@ -21,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.finn.bump.ui.screens.CalendarScreen
 import com.finn.bump.ui.screens.KicksScreen
 import com.finn.bump.ui.screens.LogScreen
 import com.finn.bump.ui.screens.NowScreen
@@ -28,6 +30,7 @@ import com.finn.bump.ui.screens.OnboardingScreen
 
 private enum class Tab(val label: String, val icon: ImageVector) {
     Now("Now", Icons.Filled.Favorite),
+    Calendar("Calendar", Icons.Filled.CalendarMonth),
     Log("Log", Icons.Filled.EditNote),
     Kicks("Kicks", Icons.Filled.ChildCare),
 }
@@ -68,7 +71,8 @@ fun BumpApp(vm: BumpViewModel) {
     ) { padding ->
         val modifier = Modifier.padding(padding)
         when (Tab.entries[tab]) {
-            Tab.Now -> NowScreen(current, vm.weeks, modifier)
+            Tab.Now -> NowScreen(current, vm, modifier)
+            Tab.Calendar -> CalendarScreen(current, vm, modifier)
             Tab.Log -> LogScreen(current, vm, snackbar, modifier)
             Tab.Kicks -> KicksScreen(current, vm, snackbar, modifier)
         }

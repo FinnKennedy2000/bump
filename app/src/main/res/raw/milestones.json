@@ -1,0 +1,142 @@
+[
+  {
+    "fromWeek": 4,
+    "toWeek": 8,
+    "title": "Tell your midwife or GP",
+    "detail": "Self-refer to your local midwifery team as soon as you know — most areas let you do this online. Start 400 micrograms of folic acid and 10 micrograms of vitamin D daily if you haven't already.",
+    "kind": "ADMIN"
+  },
+  {
+    "fromWeek": 8,
+    "toWeek": 10,
+    "title": "Booking appointment",
+    "detail": "Your longest appointment, ideally by 10 weeks. Medical history, blood pressure, height and weight, and blood tests for blood group, anaemia, and infections. You'll be given your maternity notes.",
+    "kind": "APPOINTMENT"
+  },
+  {
+    "fromWeek": 11,
+    "toWeek": 14,
+    "title": "Dating scan",
+    "detail": "Confirms how many weeks you are, gives you a due date, and checks how many babies there are. Usually offered together with combined screening for Down's, Edwards' and Patau's syndromes.",
+    "kind": "SCAN"
+  },
+  {
+    "fromWeek": 14,
+    "toWeek": 20,
+    "title": "Quadruple blood test (if offered)",
+    "detail": "Offered between 14 and 20 weeks if you missed the combined test at your dating scan. It screens for Down's syndrome only.",
+    "kind": "TEST"
+  },
+  {
+    "fromWeek": 16,
+    "toWeek": 16,
+    "title": "16 week appointment",
+    "detail": "Your booking blood results are reviewed, plus blood pressure and a urine check. A good point to ask anything the booking appointment didn't cover.",
+    "kind": "APPOINTMENT"
+  },
+  {
+    "fromWeek": 16,
+    "toWeek": 32,
+    "title": "Whooping cough vaccine",
+    "detail": "Offered from 16 weeks so your baby is protected in their first weeks of life. The flu vaccine and the RSV vaccine (from 28 weeks) are offered alongside it depending on the time of year.",
+    "kind": "APPOINTMENT"
+  },
+  {
+    "fromWeek": 18,
+    "toWeek": 20,
+    "title": "20 week anomaly scan",
+    "detail": "A detailed scan of the baby's physical development — brain, heart, spine, kidneys, and the position of the placenta. You can ask to find out the sex, or ask not to be told.",
+    "kind": "SCAN"
+  },
+  {
+    "fromWeek": 20,
+    "toWeek": 25,
+    "title": "MAT B1 and maternity leave",
+    "detail": "From 20 weeks your midwife or GP can issue your MAT B1 certificate. Tell your employer you're pregnant at least 15 weeks before your due date to secure statutory maternity pay and leave.",
+    "kind": "ADMIN"
+  },
+  {
+    "fromWeek": 25,
+    "toWeek": 25,
+    "title": "25 week appointment",
+    "detail": "First pregnancies only. Blood pressure, urine, and the first measurement of your bump from pubic bone to the top of the uterus.",
+    "kind": "APPOINTMENT"
+  },
+  {
+    "fromWeek": 28,
+    "toWeek": 28,
+    "title": "28 week appointment",
+    "detail": "Blood tests for anaemia, and your first anti-D injection if you're rhesus negative. If you've been offered a glucose tolerance test for gestational diabetes it usually happens around now.",
+    "kind": "APPOINTMENT"
+  },
+  {
+    "fromWeek": 24,
+    "toWeek": 28,
+    "title": "Glucose tolerance test (if offered)",
+    "detail": "Offered between 24 and 28 weeks if you have risk factors for gestational diabetes. You fast overnight, have a sugary drink, and have blood taken before and two hours after.",
+    "kind": "TEST"
+  },
+  {
+    "fromWeek": 30,
+    "toWeek": 32,
+    "title": "Antenatal classes",
+    "detail": "NHS and NCT classes usually run around 30 to 32 weeks. Book early — they fill up months ahead, so it's worth looking well before this window.",
+    "kind": "CLASS"
+  },
+  {
+    "fromWeek": 31,
+    "toWeek": 31,
+    "title": "31 week appointment",
+    "detail": "First pregnancies only. Blood pressure, urine, bump measurement, and a review of any test results from 28 weeks.",
+    "kind": "APPOINTMENT"
+  },
+  {
+    "fromWeek": 34,
+    "toWeek": 34,
+    "title": "34 week appointment",
+    "detail": "Information about labour and birth, and a chance to talk through your birth preferences. Second anti-D injection if you're rhesus negative.",
+    "kind": "APPOINTMENT"
+  },
+  {
+    "fromWeek": 35,
+    "toWeek": 37,
+    "title": "Pack your hospital bag",
+    "detail": "Worth having ready by 37 weeks. Notes, ID, comfortable clothes, nappies and a going-home outfit for the baby, plus a car seat fitted and tested.",
+    "kind": "ADMIN"
+  },
+  {
+    "fromWeek": 36,
+    "toWeek": 36,
+    "title": "36 week appointment",
+    "detail": "Checks the baby's position. If they're breech you'll be offered an ECV — an attempt to turn the baby from the outside. Feeding and vitamin K are usually discussed here.",
+    "kind": "APPOINTMENT"
+  },
+  {
+    "fromWeek": 38,
+    "toWeek": 38,
+    "title": "38 week appointment",
+    "detail": "Blood pressure, urine, bump measurement, and a conversation about what happens if the pregnancy goes past its due date.",
+    "kind": "APPOINTMENT"
+  },
+  {
+    "fromWeek": 40,
+    "toWeek": 40,
+    "title": "40 week appointment",
+    "detail": "First pregnancies only. The usual checks, plus a discussion about induction if you go overdue.",
+    "kind": "APPOINTMENT"
+  },
+  {
+    "fromWeek": 41,
+    "toWeek": 41,
+    "title": "41 week appointment",
+    "detail": "A membrane sweep is usually offered to encourage labour to start, along with a plan for induction if it doesn't.",
+    "kind": "APPOINTMENT"
+  },
+  {
+    "fromWeek": 42,
+    "toWeek": 42,
+    "title": "Past 42 weeks",
+    "detail": "Pregnancies aren't usually left beyond 42 weeks. If you've declined induction you'll be offered increased monitoring of the baby's movements and heartbeat.",
+    "kind": "APPOINTMENT"
+  }
+]

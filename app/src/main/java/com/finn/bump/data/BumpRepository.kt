@@ -2,15 +2,19 @@ package com.finn.bump.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import com.finn.bump.domain.Milestone
+import com.finn.bump.domain.MilestoneTable
 import com.finn.bump.domain.WeekInfo
 import com.finn.bump.domain.WeekTable
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.KSerializer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.Json
 
 /**
  * Process-wide singletons, held here rather than in a DI graph.
  *
- * There are exactly two of them and neither is swapped in tests (the tested code is
+ * There are a handful of them and none is swapped in tests (the tested code is
  * pure and takes no dependencies), so a DI framework would add a graph, a compiler
  * plugin and build time to solve a problem the app does not have.
  *
@@ -22,6 +26,7 @@ object Bump {
     @Volatile private var store: DataStore<AppState>? = null
     @Volatile private var repo: BumpRepository? = null
     @Volatile private var weeks: WeekTable? = null
+    @Volatile private var milestones: MilestoneTable? = null
 
     fun repository(context: Context): BumpRepository =
         repo ?: synchronized(this) {
@@ -38,13 +43,21 @@ object Bump {
             weeks ?: loadWeekTable(context.applicationContext).also { weeks = it }
         }
 
-    private fun loadWeekTable(context: Context): WeekTable {
-        val raw = context.resources
-            .openRawResource(com.finn.bump.R.raw.weeks)
-            .bufferedReader()
-            .use { it.readText() }
-        val json = Json { ignoreUnknownKeys = true }
-        return WeekTable(json.decodeFromString(kotlinx.serialization.builtins.ListSerializer(WeekInfo.serializer()), raw))
+    fun milestoneTable(context: Context): MilestoneTable =
+        milestones ?: synchronized(this) {
+            milestones ?: MilestoneTable(
+                readList(context.applicationContext, com.finn.bump.R.raw.milestones, Milestone.serializer())
+            ).also { milestones = it }
+        }
+
+    private fun loadWeekTable(context: Context): WeekTable =
+        WeekTable(readList(context, com.finn.bump.R.raw.weeks, WeekInfo.serializer()))
+
+    private val json = Json { ignoreUnknownKeys = true }
+
+    private fun <T> readList(context: Context, resId: Int, serializer: KSerializer<T>): List<T> {
+        val raw = context.resources.openRawResource(resId).bufferedReader().use { it.readText() }
+        return json.decodeFromString(ListSerializer(serializer), raw)
     }
 }
 
@@ -58,7 +71,9 @@ class BumpRepository(private val store: DataStore<AppState>) {
 
     suspend fun setDueDate(date: Iso8601Date) = update { it.copy(dueDate = date) }
 
-    suspend fun setBabyName(name: String) = update { it.copy(babyName = name) }
+    suspend fun setBabyDetails(name: String, nickname: String, sex: BabySex) = update {
+        it.copy(babyName = name.trim(), babyNickname = nickname.trim(), babySex = sex)
+    }
 
     suspend fun addAppointment(appointment: Appointment) =
         update { it.copy(appointments = it.appointments + appointment) }

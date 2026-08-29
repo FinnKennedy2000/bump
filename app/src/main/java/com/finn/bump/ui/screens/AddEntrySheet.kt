@@ -34,6 +34,9 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+/** Prefilled title and date, used when a calendar milestone becomes a real appointment. */
+internal data class Prefill(val title: String, val date: LocalDate)
+
 /**
  * One sheet for all three entry types. They share a shape — a couple of fields and a
  * date — so three near-identical sheets would be three places to fix the same bug.
@@ -45,13 +48,14 @@ internal fun AddEntrySheet(
     state: AppState,
     vm: BumpViewModel,
     onDismiss: () -> Unit,
+    prefill: Prefill? = null,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    var title by remember { mutableStateOf("") }
+    var title by remember { mutableStateOf(prefill?.title.orEmpty()) }
     var note by remember { mutableStateOf("") }
     var kg by remember { mutableStateOf("") }
-    var date by remember { mutableStateOf(LocalDate.now()) }
+    var date by remember { mutableStateOf(prefill?.date ?: LocalDate.now()) }
     var time by remember { mutableStateOf(LocalTime.of(9, 0)) }
     var pickingDate by remember { mutableStateOf(false) }
 
