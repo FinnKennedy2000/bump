@@ -128,21 +128,80 @@ permanent, non-dismissible line on the Now screen: *"General information only �
 medical advice. Talk to your midwife or doctor about your pregnancy."* This is not
 negotiable regardless of the app being personal.
 
+## Baby details
+
+`AppState` carries what you learn as you go, all optional and all editable from one
+sheet reached by tapping the name on the Now screen:
+
+- `babyName` — the chosen name
+- `babyNickname` — what you call the bump before there is a name; kept separate because
+  they are different facts that arrive at different times and one does not replace the
+  other
+- `babySex` — `UNKNOWN | GIRL | BOY | SURPRISE`. `SURPRISE` is deliberately distinct
+  from `UNKNOWN`: one is a decision, the other is a gap, and collapsing them would make
+  the app keep asking a question already answered
+- the due date itself, because an early estimate is routinely corrected at the dating
+  scan and there was previously no way to change it after onboarding
+
+Every field is defaulted, so a saved `AppState` written before these existed still
+decodes — asserted by a test that parses the exact JSON shape already on disk. Getting
+this wrong would hand every installed copy to the corruption handler and wipe it.
+
+## Care milestones
+
+`res/raw/milestones.json` — the typical NHS antenatal pathway (England, NICE NG201) as
+20 entries, each a gestational **week window** rather than a date:
+
+```json
+{ "fromWeek": 11, "toWeek": 14, "title": "Dating scan",
+  "detail": "...", "kind": "SCAN" }
+```
+
+A milestone is a fact about pregnancies in general, not about this one, so it is stored
+as weeks and resolved against the due date by `MilestoneTable.forPregnancy(dueDate)`.
+Week `n` spans gestational days `7n`..`7n+6`, so a window runs from the first day of
+`fromWeek` to the last day of `toWeek`.
+
+Nothing is persisted and nothing derives from a milestone. It becomes real data only
+when the user turns it into an `Appointment` — which is why the calendar's milestone
+rows carry an "Add to my appointments" action that opens the existing `AddEntrySheet`
+prefilled. Suggested and booked stay visibly separate.
+
+`kind` is `SCAN | APPOINTMENT | TEST | CLASS | ADMIN`, used purely to colour dots from
+the Moon supportive hues. A test asserts every kind is used, so the calendar legend can
+never advertise a colour the user will never see.
+
+**This is the highest-risk content in the app.** A schedule of appointments reads as
+instruction in a way that "your baby is the size of a papaya" does not, so every
+milestone view carries *"Typical NHS schedule — your midwife will confirm your actual
+dates"* on top of the standard disclaimer.
+
 ## UI
 
-Three destinations held in a `rememberSaveable` index behind a `NavigationBar`. No
+Four destinations held in a `rememberSaveable` index behind a `NavigationBar`. No
 navigation library — there are no arguments, no deep links and no back stack to model.
 
 **Onboarding** (shown whenever `dueDate == null`): pick a due date, or enter the LMP
 date and let the app add 280 days. Uses the M3 `DatePicker`.
 
 **Now** — the primary screen:
-- Week and day ("Week 22 · Day 3"), trimester
+- The baby's name (or bump name), tappable to edit all the details
+- Week and day ("Week 22 · Day 3"), trimester, and the sex once known
 - Size comparison with length and weight
 - Countdown ("126 days to go") and a progress bar
 - This week's blurb
 - Next upcoming appointment, if any
+- The next care milestone ahead of you
 - The medical disclaimer
+
+**Calendar**:
+- Month grid, Monday-first, arrows to change month and a "Today" reset
+- Each day cell carries up to four 4dp dots: milestone kinds, a saved appointment, and
+  any weight or note logged that day
+- Today is outlined, the due date is filled with `primaryContainer`, selection is filled
+  with `primary`
+- Tapping a day expands its detail underneath: gestational age, saved appointments, and
+  any milestone windows covering it
 
 **Log**:
 - Appointments — title, date/time, optional note; upcoming sorted first, past collapsed
@@ -251,8 +310,11 @@ scheduler for something the platform may already provide.
 
 ## Testing
 
-One JVM unit test class over `domain`, covering every edge case listed under Domain
-functions plus the week-content lookup (in range, clamped above 40, clamped below 0).
+JVM unit tests over `domain`, covering every edge case listed under Domain functions,
+the week-content lookup (in range, clamped above 40, clamped below 0), and milestone
+window arithmetic (inclusive bounds, ordering, `on`/`nextFrom` behaviour). Both bundled
+JSON files are parsed from `src/main/res/raw` by a test, so malformed content fails the
+build rather than the app.
 
 The domain functions are the only non-trivial logic in the app; the rest is Compose
 layout and a serializer. No instrumentation tests, no UI tests, no fixtures, no mocks.

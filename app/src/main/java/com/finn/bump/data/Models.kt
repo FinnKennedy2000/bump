@@ -21,6 +21,15 @@ typealias Iso8601Date = @Serializable(with = LocalDateSerializer::class) LocalDa
 private fun newId() = UUID.randomUUID().toString()
 
 /**
+ * What you know about the sex, including the two ways of not knowing.
+ *
+ * [SURPRISE] is deliberately distinct from [UNKNOWN]: one is a decision, the other is
+ * a gap. Collapsing them would make the app keep asking a question already answered.
+ */
+@Serializable
+enum class BabySex { UNKNOWN, GIRL, BOY, SURPRISE }
+
+/**
  * Every logged item carries a stable [id] and an [updatedAt] stamp.
  *
  * They earn their place locally — [id] gives stable list keys and makes edit/delete/undo
@@ -70,6 +79,9 @@ data class KickSession(
 /**
  * The whole app. One serialisable tree, persisted as a single JSON document.
  *
+ * [babyName] is the chosen name and [babyNickname] is what you call the bump before
+ * there is one; both are optional and neither replaces the other.
+ *
  * [dueDate] is the only derived-from state in the app — everything about the pregnancy
  * itself (week, trimester, countdown, progress) is a pure function of it. A null due
  * date is the app's only state machine: null means show onboarding.
@@ -78,8 +90,17 @@ data class KickSession(
 data class AppState(
     val dueDate: Iso8601Date? = null,
     val babyName: String = "",
+    val babyNickname: String = "",
+    val babySex: BabySex = BabySex.UNKNOWN,
     val appointments: List<Appointment> = emptyList(),
     val weights: List<WeightEntry> = emptyList(),
     val notes: List<Note> = emptyList(),
     val kickSessions: List<KickSession> = emptyList(),
 )
+
+/** The name, the bump name, or nothing yet — in that order. */
+val AppState.displayName: String get() = when {
+    babyName.isNotBlank() -> babyName
+    babyNickname.isNotBlank() -> babyNickname
+    else -> "Your baby"
+}

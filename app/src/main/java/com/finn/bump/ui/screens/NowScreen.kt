@@ -1,27 +1,39 @@
 package com.finn.bump.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import com.finn.bump.data.AppState
+import com.finn.bump.data.displayName
 import com.finn.bump.domain.Pregnancy
-import com.finn.bump.domain.WeekTable
+import com.finn.bump.domain.nextFrom
+import com.finn.bump.ui.BumpViewModel
 import com.finn.bump.ui.components.MedicalDisclaimer
 import com.finn.bump.ui.components.MoonCard
 import com.finn.bump.ui.components.SectionTitle
+import androidx.compose.runtime.remember
 import com.finn.bump.ui.theme.LocalMoonExtras
 import com.finn.bump.ui.theme.Spacing
 import java.time.Instant
@@ -32,14 +44,16 @@ import java.util.Locale
 import kotlin.math.abs
 
 @Composable
-fun NowScreen(state: AppState, weeks: WeekTable, modifier: Modifier = Modifier) {
+fun NowScreen(state: AppState, vm: BumpViewModel, modifier: Modifier = Modifier) {
     val due = state.dueDate ?: return
     val today = LocalDate.now()
+    val weeks = vm.weeks
 
     val week = Pregnancy.week(due, today)
     val day = Pregnancy.dayOfWeek(due, today)
     val toGo = Pregnancy.daysToGo(due, today)
     val info = weeks[week]
+    var editing by remember { mutableStateOf(false) }
 
     Surface(color = MaterialTheme.colorScheme.background) {
         Column(
@@ -49,12 +63,25 @@ fun NowScreen(state: AppState, weeks: WeekTable, modifier: Modifier = Modifier) 
                 .padding(horizontal = Spacing.p4),
             verticalArrangement = Arrangement.spacedBy(Spacing.p3),
         ) {
-            Text(
-                text = if (state.babyName.isBlank()) "Your baby" else state.babyName,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = Spacing.p4),
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.p1),
+                modifier = Modifier
+                    .padding(top = Spacing.p4)
+                    .clickable(onClickLabel = "Edit baby details") { editing = true },
+            ) {
+                Text(
+                    text = state.displayName,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Icon(
+                    Icons.Filled.Edit,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp),
+                )
+            }
 
             Text(
                 text = "Week $week · Day $day",
@@ -62,7 +89,10 @@ fun NowScreen(state: AppState, weeks: WeekTable, modifier: Modifier = Modifier) 
             )
 
             Text(
-                text = "Trimester ${Pregnancy.trimester(week)}",
+                text = listOfNotNull(
+                    "Trimester ${Pregnancy.trimester(week)}",
+                    state.babySex.headline,
+                ).joinToString("  ·  "),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -112,10 +142,23 @@ fun NowScreen(state: AppState, weeks: WeekTable, modifier: Modifier = Modifier) 
 
             NextAppointment(state)
 
+            val nextMilestone = remember(due, today) {
+                vm.milestones.forPregnancy(due).nextFrom(today)
+            }
+            if (nextMilestone != null) {
+                SectionTitle("Coming up")
+                MilestoneCard(nextMilestone)
+            }
+
             MedicalDisclaimer(Modifier.padding(vertical = Spacing.p6))
         }
     }
+
+    if (editing) {
+        BabyDetailsSheet(state = state, vm = vm, onDismiss = { editing = false })
+    }
 }
+
 
 @Composable
 private fun NextAppointment(state: AppState) {

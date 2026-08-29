@@ -8,6 +8,9 @@ Offline Android pregnancy tracker. Personal app, sideloaded, no backend.
   the network is a design change to discuss, not an implementation detail.
 - **The medical disclaimer stays.** Permanent and non-dismissible on the Now screen. The
   app shows population averages; it must never read as clinical advice.
+- **Care milestones are suggestions, never instructions.** The bundled NHS schedule is
+  typical timings only. Every milestone view says so, and a milestone only becomes real
+  data when the user explicitly turns it into an `Appointment`.
 - **Kick counting stays uninterpreted.** Count and time only — no target counts, no
   "normal/abnormal" judgement.
 - **Contrast is not negotiable.** Body text meets WCAG AA 4.5:1 in both themes. This is
@@ -34,4 +37,6 @@ default.
 - Every logged item gets a stable `id` and an `updatedAt`.
 - Mark deliberate simplifications that have a real ceiling with a `ponytail:` comment
   naming the ceiling and the upgrade path.
+- Bundled reference content (`weeks.json`, `milestones.json`) lives in `res/raw`, is
+  parsed once through `Bump`, and is validated by a JVM test that reads the real file.
 - Tests cover `domain` and the bundled content. Compose layout is not unit tested.

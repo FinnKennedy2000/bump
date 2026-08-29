@@ -1,7 +1,8 @@
 # Bump
 
 An offline Android pregnancy tracker. Week-by-week size and development info, a
-countdown, appointments, kick counting, weight and notes, plus a homescreen widget.
+countdown, the typical NHS antenatal schedule on a calendar, the baby's name and sex as
+you learn them, appointments, kick counting, weight and notes, plus a homescreen widget.
 
 Personal app, sideloaded. No accounts, no backend, no analytics, and no `INTERNET`
 permission.
@@ -30,7 +31,7 @@ library — see the spec for why each was left out.
 
 | Package | What lives there |
 |---|---|
-| `domain` | Pure date arithmetic and the week content model. No Android imports. |
+| `domain` | Pure date arithmetic, the week content model and the care milestones. No Android imports. |
 | `data`   | `AppState`, DataStore persistence, repository. |
 | `ui`     | Compose screens and the Moon theme. |
 | `widget` | The Glance homescreen widget. |
@@ -59,13 +60,22 @@ APKs land in `app/build/outputs/apk/`.
 ## Tests
 
 JVM unit tests over `domain` — gestational arithmetic and its edge cases (due date,
-overdue, pre-term, week rollover, trimester boundaries), the week-table lookup, and a
-parse of the real bundled `weeks.json`. No instrumentation tests.
+overdue, pre-term, week rollover, trimester boundaries), the week-table lookup, care
+milestone window arithmetic, and a parse of the real bundled `weeks.json` and
+`milestones.json`. Plus a `data` test that decodes the exact `AppState` JSON shape
+already on disk, so adding a field can never silently wipe a saved pregnancy. No
+instrumentation tests.
 
 ## A note on the content
 
 Sizes, lengths and weights are population averages for orientation only. Lengths are
 crown-rump to week 20 and crown-heel from week 21, which is why the figure jumps there.
+
+The calendar shows the typical NHS antenatal pathway (England, NICE NG201) as week
+windows, not booked appointments. They are suggestions of what usually happens when;
+your midwife confirms your actual dates. A milestone only becomes real data in the app
+when you explicitly add it to your own appointments.
+
 The app is general information, not medical advice.
 
 ## Docs
