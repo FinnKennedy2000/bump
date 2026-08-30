@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +50,7 @@ import com.finn.bump.ui.components.Rule
 import com.finn.bump.ui.components.WeightChart
 import com.finn.bump.ui.theme.LocalBumpExtras
 import com.finn.bump.ui.theme.Spacing
+import kotlinx.coroutines.CoroutineScope
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -88,6 +90,8 @@ fun LogScreen(
     snackbar: SnackbarHostState,
     modifier: Modifier = Modifier,
 ) {
+    // Held here so an undo survives the row that was just deleted.
+    val scope = rememberCoroutineScope()
     var filter by remember { mutableStateOf(Filter.All) }
     var adding by remember { mutableStateOf<LogTab?>(null) }
 
@@ -123,11 +127,11 @@ fun LogScreen(
 
             if (upcoming.isNotEmpty()) {
                 MicroLabel("Upcoming", Modifier.padding(top = Spacing.p5, bottom = Spacing.p1))
-                upcoming.sortedBy { it.millis }.forEach { Entry(it, vm, snackbar) }
+                upcoming.sortedBy { it.millis }.forEach { Entry(it, vm, snackbar, scope) }
             }
             if (earlier.isNotEmpty()) {
                 MicroLabel("Earlier", Modifier.padding(top = Spacing.p5, bottom = Spacing.p1))
-                earlier.sortedByDescending { it.millis }.forEach { Entry(it, vm, snackbar) }
+                earlier.sortedByDescending { it.millis }.forEach { Entry(it, vm, snackbar, scope) }
             }
 
             Box(Modifier.height(Spacing.p8))
@@ -302,7 +306,12 @@ private fun emptyMessage(filter: Filter): String = when (filter) {
 }
 
 @Composable
-private fun Entry(row: LogRow, vm: BumpViewModel, snackbar: SnackbarHostState) {
+private fun Entry(
+    row: LogRow,
+    vm: BumpViewModel,
+    snackbar: SnackbarHostState,
+    scope: CoroutineScope,
+) {
     val extras = LocalBumpExtras.current
     val item = row.item
 
@@ -361,6 +370,7 @@ private fun Entry(row: LogRow, vm: BumpViewModel, snackbar: SnackbarHostState) {
                 onDelete = { vm.delete(item) },
                 onUndo = { vm.restore(item) },
                 snackbar = snackbar,
+                scope = scope,
             )
         }
     }

@@ -18,7 +18,8 @@ object Palette {
     val Clay = Color(0xFFB04E30)
     val ClayPressed = Color(0xFF99422A)
     val ClayDark = Color(0xFFE4805C)
-    val ClayTintLight = Color(0xFFF6EAE5)
+    /** The doc's #F6EAE5 leaves clay-on-tint at 4.48:1; one step lighter clears AA. */
+    val ClayTintLight = Color(0xFFF8EFEB)
     val ClayTintDark = Color(0xFF2A1C17)
 
     // Ground and ink.

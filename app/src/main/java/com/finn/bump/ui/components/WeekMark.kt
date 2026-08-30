@@ -17,9 +17,9 @@ import com.finn.bump.R
  * Weeks outside 3..40 clamp to the ends: before week 3 there is nothing to draw, and the
  * table itself clamps at 40.
  *
- * ponytail: one set of marks for both themes. They are drawn on light fills, which still
- * read on the dark card (#1C1917); if a mark ever disappears there, add a
- * `drawable-night/` variant for that week rather than a second palette.
+ * Nineteen of the marks lean on near-black or deep fills that fall under 3:1 on the dark
+ * card, so those have a `drawable-night/` variant with each offending colour lifted along
+ * its own hue. The rest are light enough to serve both themes from one file.
  */
 @Composable
 fun WeekMark(week: Int, size: Dp, modifier: Modifier = Modifier) {

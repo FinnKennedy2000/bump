@@ -5,10 +5,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Schedule
@@ -71,12 +74,15 @@ fun BumpApp(vm: BumpViewModel) {
     }
 
     var tab by rememberSaveable { mutableIntStateOf(0) }
-    var overlay by remember { mutableStateOf<Overlay?>(null) }
+    // Saved by name: an enum is only Bundle-savable by accident, and losing the kick
+    // counter to a rotation is exactly what this is here to prevent.
+    var overlayName by rememberSaveable { mutableStateOf<String?>(null) }
+    val overlay = overlayName?.let(Overlay::valueOf)
     val snackbar = remember { SnackbarHostState() }
 
     when (overlay) {
         Overlay.Kicks -> {
-            KicksScreen(current, vm, onClose = { overlay = null })
+            KicksScreen(current, vm, onClose = { overlayName = null })
             return
         }
 
@@ -85,7 +91,7 @@ fun BumpApp(vm: BumpViewModel) {
                 weeks = vm.weeks,
                 currentWeek = Pregnancy.week(current.dueDate!!, LocalDate.now()),
                 dueDate = current.dueDate!!,
-                onBack = { overlay = null },
+                onBack = { overlayName = null },
             )
             return
         }
@@ -103,15 +109,15 @@ fun BumpApp(vm: BumpViewModel) {
             Tab.Today -> TodayScreen(
                 state = current,
                 vm = vm,
-                onCountKicks = { overlay = Overlay.Kicks },
-                onEveryWeek = { overlay = Overlay.SizeChart },
+                onCountKicks = { overlayName = Overlay.Kicks.name },
+                onEveryWeek = { overlayName = Overlay.SizeChart.name },
                 modifier = modifier,
             )
 
             Tab.Journey -> JourneyScreen(
                 state = current,
                 vm = vm,
-                onEveryWeek = { overlay = Overlay.SizeChart },
+                onEveryWeek = { overlayName = Overlay.SizeChart.name },
                 modifier = modifier,
             )
 
@@ -123,7 +129,13 @@ fun BumpApp(vm: BumpViewModel) {
 /** A hairline and three labels. Material's NavigationBar brings a tonal slab this design has no room for. */
 @Composable
 private fun BottomBar(selected: Int, onSelect: (Int) -> Unit) {
-    Column(Modifier.background(MaterialTheme.colorScheme.background)) {
+    Column(
+        Modifier
+            .background(MaterialTheme.colorScheme.background)
+            // Scaffold does not inset a hand-rolled bottom bar the way NavigationBar
+            // insets itself, and the activity is edge to edge.
+            .windowInsetsPadding(WindowInsets.navigationBars)
+    ) {
         Rule()
         Row(
             Modifier.fillMaxWidth().height(64.dp).padding(horizontal = Spacing.p3),
