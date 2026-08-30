@@ -29,7 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.finn.bump.data.sync.DEFAULT_BASE_URL
 import com.finn.bump.data.sync.Pairing
 import com.finn.bump.ui.BumpViewModel
-import com.finn.bump.ui.components.MoonCard
+import com.finn.bump.ui.components.PaperCard
 import com.finn.bump.ui.theme.Spacing
 
 /**
@@ -71,7 +71,7 @@ internal fun SyncSheet(vm: BumpViewModel, onDismiss: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
-                MoonCard {
+                PaperCard {
                     Text(
                         current.toCode(),
                         style = MaterialTheme.typography.bodySmall,

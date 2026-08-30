@@ -1,0 +1,16 @@
+<!-- Dark-theme variant: the day mark is near-black on a dark card. Each colour
+     is lifted along its own hue to clear 3:1 against #1C1917. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp"
+    android:height="40dp"
+    android:viewportWidth="40"
+    android:viewportHeight="40">
+    <path
+        android:pathData="M12 11c-1.5 11 5 18.5 15.5 17.5-3.5-2-7-4.5-9.5-8.5S12.8 13.5 12 11z"
+        android:fillColor="#E3C13C" />
+    <path
+        android:pathData="M12 11l-1.5-1.5"
+        android:fillColor="#00000000"
+        android:strokeColor="#997D53"
+        android:strokeWidth="1.2" />
+</vector>

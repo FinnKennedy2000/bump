@@ -4,13 +4,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
-/** Moon surface/interactive border radii: 4 / 8 / 12 / 16 / pill. */
-val MoonShapes = Shapes(
-    extraSmall = RoundedCornerShape(4.dp),
+/** One radius. The design doc uses 8px for everything that isn't a sheet or a circle. */
+val BumpShapes = Shapes(
+    extraSmall = RoundedCornerShape(6.dp),
     small = RoundedCornerShape(8.dp),
-    medium = RoundedCornerShape(12.dp),
+    medium = RoundedCornerShape(8.dp),
     large = RoundedCornerShape(16.dp),
     extraLarge = RoundedCornerShape(16.dp),
 )
-
-val Pill = RoundedCornerShape(percent = 50)

@@ -1,4 +1,8 @@
 <resources>
-    <!-- Moon "goku" (background), light mode. -->
-    <color name="goku">#F5F5F5</color>
+    <!-- The launch background, and the two widget colours Glance can only take as
+         resources: it has no day/night ColorProvider, so the night values live in
+         values-night/colors.xml. -->
+    <color name="paper">#FBF8F4</color>
+    <color name="clay">#B04E30</color>
+    <color name="track">#EAE2D8</color>
 </resources>

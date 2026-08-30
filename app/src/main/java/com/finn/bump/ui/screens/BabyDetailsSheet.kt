@@ -38,11 +38,11 @@ internal val BabySex.label: String get() = when (this) {
     BabySex.SURPRISE -> "Staying a surprise"
 }
 
-/** How the sex reads on the Now screen, or null while there is nothing to say. */
+/** How the sex reads on Today, or null while there is nothing to say. */
 internal val BabySex.headline: String? get() = when (this) {
     BabySex.UNKNOWN -> null
-    BabySex.GIRL -> "It's a girl"
-    BabySex.BOY -> "It's a boy"
+    BabySex.GIRL -> "A girl"
+    BabySex.BOY -> "A boy"
     BabySex.SURPRISE -> "Staying a surprise"
 }
 

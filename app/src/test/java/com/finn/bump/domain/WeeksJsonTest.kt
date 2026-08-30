@@ -43,18 +43,26 @@ class WeeksJsonTest {
     }
 
     @Test
-    fun `emoji are single graphemes where present`() {
-        weeks.mapNotNull { w -> w.emoji?.let { w.week to it } }.forEach { (week, e) ->
-            assertTrue("week $week emoji is blank", e.isNotBlank())
-            // A stray label instead of a picture would blow the row layout apart.
-            assertTrue("week $week emoji '$e' looks like text", e.length <= 8)
-        }
+    fun `every measured week has a drawn mark, and no mark is orphaned`() {
+        // The marks are looked up by week number in WeekMark.kt, so a missing file is a
+        // crash on the size chart and a stray one is a mark nothing can ever show.
+        val marks = File("src/main/res/drawable")
+            .listFiles { f -> f.name.startsWith("week_") }
+            .orEmpty()
+            .map { it.name.removePrefix("week_").removeSuffix(".xml").toInt() }
+            .sorted()
+
+        assertEquals((3..40).toList(), marks)
+        assertTrue(
+            "some measured weeks have no mark",
+            weeks.filter { it.lengthCm != null }.all { it.week in marks },
+        )
     }
 
     @Test
-    fun `measured weeks and max length back the sizes screen`() {
+    fun `measured weeks and max length back the size chart`() {
         val table = WeekTable(weeks)
-        // Weeks 0-2 have no measurement and must not reach the Sizes list.
+        // Weeks 0-2 have no measurement and must not reach the size chart.
         assertTrue(table.measured.none { it.lengthCm == null })
         assertEquals(3, table.measured.first().week)
         assertEquals(40, table.measured.last().week)

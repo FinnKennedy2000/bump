@@ -9,14 +9,14 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.finn.bump.ui.BumpApp
 import com.finn.bump.ui.BumpViewModel
-import com.finn.bump.ui.theme.MoonTheme
+import com.finn.bump.ui.theme.BumpTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-            MoonTheme {
+            BumpTheme {
                 val vm: BumpViewModel = viewModel()
 
                 // Pull whatever the other phone added while this one was closed. Sync also
