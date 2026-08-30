@@ -1,0 +1,10 @@
+Satoshi and Gambetta
+Copyright (c) Indian Type Foundry
+
+Bundled under the ITF Free Font License (FFL), which permits use, embedding in
+applications and redistribution of the unmodified font files, including for
+commercial work, with attribution and without a fee.
+
+Full licence text: https://www.fontshare.com/licenses/itf-ffl
+
+Files: res/font/satoshi_400.ttf, satoshi_500.ttf, satoshi_700.ttf, gambetta_500.ttf

@@ -3,57 +3,71 @@ package com.finn.bump.ui.theme
 import androidx.compose.ui.graphics.Color
 
 /**
- * Moon Design System v1 colour tokens, extracted from the Figma "Colors" variable
- * collection (Light / Dark modes). Names are Moon's own.
+ * The Bump palette, taken from the "Bump Redesign" design doc.
  *
- * Only the tokens the app actually uses are ported. Moon defines 61; adding another is
- * one line, so there is nothing to gain from porting the rest up front.
+ * Paper and ink rather than Material's greys: a warm off-white ground, hairline rules
+ * instead of shadows, clay as the only accent that acts, and four muted hues that carry
+ * meaning (scan / appointment / test / admin) and nothing else.
+ *
+ * Where a token from the doc failed WCAG AA 4.5:1 as *text* it was darkened or lightened
+ * along its own hue and the doc value kept for decoration only — see [LabelLight],
+ * [LabelDark] and [OchreText]. Contrast is not negotiable; see CLAUDE.md.
  */
-object Moon {
-    // Main
-    val Piccolo = Color(0xFF4E46B4)          // brand indigo, both modes
-    val Hit = Color(0xFF40A69F)              // brand teal, both modes
-    val Goten = Color(0xFFFFFFFF)            // text on brand, both modes
+object Palette {
+    // Clay — the one colour that means "you can act on this".
+    val Clay = Color(0xFFB04E30)
+    val ClayPressed = Color(0xFF99422A)
+    val ClayDark = Color(0xFFE4805C)
+    val ClayTintLight = Color(0xFFF6EAE5)
+    val ClayTintDark = Color(0xFF2A1C17)
 
-    val BeerusLight = Color(0xFFE2E2E2)
-    val BeerusDark = Color(0xFF444444)
-    val GokuLight = Color(0xFFF5F5F5)
-    val GokuDark = Color(0xFF0B0B0B)
-    val GohanLight = Color(0xFFFFFFFF)
-    val GohanDark = Color(0xFF1F1F1F)
-    val BulmaLight = Color(0xFF000000)
-    val BulmaDark = Color(0xFFFFFFFF)
+    // Ground and ink.
+    val PaperLight = Color(0xFFFBF8F4)
+    val RaisedLight = Color(0xFFFFFFFF)
+    val InkLight = Color(0xFF17130F)
 
-    val TrunksLight = Color(0xFF595D62)
+    val PaperDark = Color(0xFF131110)
+    val RaisedDark = Color(0xFF1C1917)
+    val InkDark = Color(0xFFF5F0EA)
 
-    /**
-     * Deliberate deviation from Moon.
-     *
-     * Moon ships `trunks` as #595D62 in BOTH modes. On its own dark background
-     * (#0B0B0B) that measures ~3.4:1 — below the WCAG AA 4.5:1 floor for body text.
-     * This is the lightened value (~9:1). Secondary text has to be readable.
-     */
-    val TrunksDark = Color(0xFFA3A8AE)
+    // Secondary text. Both clear AA on their own paper and on the raised surface.
+    val MutedLight = Color(0xFF6F6459)
+    val MutedDark = Color(0xFFA2968B)
 
-    val JirenLight = Color(0x1F4E46B4)       // brand @ 12%
-    val JirenDark = Color(0x524E46B4)        // brand @ 32%
-    val HelesLight = Color(0x0A000000)       // hover overlay @ 4%
-    val HelesDark = Color(0x14FFFFFF)        // hover overlay @ 8%
-    val Zeno = Color(0x8F000000)             // scrim @ 56%
+    /** Micro-labels. The doc's #8A7D73 measures 3.8:1; this is the same hue at 5.2:1. */
+    val LabelLight = Color(0xFF736759)
 
-    // Supportive
-    val Krillin = Color(0xFFFFB319)          // warning
-    val KrillinTint = Color(0x1FFFB319)
-    val Chichi = Color(0xFFFF4E64)           // pink
-    val ChichiTint = Color(0x1FFF4E64)
-    val Roshi = Color(0xFF2E7D32)            // success
-    val RoshiTint = Color(0x1F2E7D32)
-    val Dodoria = Color(0xFFD33030)          // error
-    val DodoriaTint = Color(0x1FD33030)
-    val Cell = Color(0xFF95F1D5)             // mint
-    val Whis = Color(0xFF3448F0)             // info
-    val WhisTint = Color(0x1F3448F0)
-    val Frieza = Color(0xFF5C33CF)           // violet
-    val Raditz = Color(0xFFB3804A)           // tan
-    val Nappa = Color(0xFF725550)            // brown
+    /** The doc's #776D64 measures 3.5:1 on the raised dark surface; this is 4.9:1. */
+    val LabelDark = Color(0xFF948A7F)
+
+    // Lines. Never text, so the doc's values stand.
+    val BorderLight = Color(0xFFD8CDC0)
+    val RuleLight = Color(0xFFE8E0D6)
+    val TrackLight = Color(0xFFEAE2D8)
+    val FaintLight = Color(0xFFC3B8AA)
+
+    val BorderDark = Color(0xFF2E2926)
+    val RuleDark = Color(0xFF2E2926)
+    val TrackDark = Color(0xFF2E2926)
+    val FaintDark = Color(0xFF4A433E)
+
+    val HoverLight = Color(0x0A17130F)
+    val HoverDark = Color(0x14F5F0EA)
+    val Scrim = Color(0x8F17130F)
+
+    // The four meanings. Light values are the doc's; dark values are lifted for the ground.
+    val Rose = Color(0xFFA8496A)          // scan
+    val RoseDark = Color(0xFFD2809A)
+    val Slate = Color(0xFF4F6275)         // appointment
+    val SlateDark = Color(0xFF7C97AE)
+    val Moss = Color(0xFF4E6A43)          // test, and "gained weight"
+    val MossDark = Color(0xFF8FA96B)
+    val Ochre = Color(0xFFC0871F)         // admin
+    val OchreDark = Color(0xFFDFA847)
+
+    /** Ochre as a dot is fine at 3:1; ochre as words is not. This is the same hue at 5.3:1. */
+    val OchreText = Color(0xFF8A5F12)
+
+    val Error = Color(0xFFB3261E)
+    val ErrorDark = Color(0xFFF2B8B5)
 }

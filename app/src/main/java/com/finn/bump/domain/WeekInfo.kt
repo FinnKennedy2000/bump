@@ -6,9 +6,8 @@ import java.util.Locale
 /**
  * One week's reference content, loaded from `res/raw/weeks.json`.
  *
- * [emoji] is set only where one genuinely depicts the named object — roughly two thirds
- * of the weeks. A wrong picture is worse than no picture, so the rest rely on the
- * to-scale drawing on the Sizes screen instead.
+ * The picture for a week is not here: it is a drawn vector in `res/drawable/week_NN.xml`,
+ * looked up by week number. See `ui/components/WeekMark.kt`.
  *
  * [lengthCm] is crown-rump length up to week 20 and crown-heel length from week 21 —
  * the standard convention, and the reason the figure jumps at that boundary. The UI
@@ -18,7 +17,6 @@ import java.util.Locale
 data class WeekInfo(
     val week: Int,
     val size: String,
-    val emoji: String? = null,
     val lengthCm: Double?,
     val weightG: Int?,
     val blurb: String,
@@ -27,6 +25,12 @@ data class WeekInfo(
 
     /** "head to bottom" up to week 20, "head to heel" after. */
     val measureLabel: String get() = if (measuresCrownToHeel) "head to heel" else "head to bottom"
+
+    /** "34.6 cm · 660 g" — the pair alone, where the context already says what they are. */
+    val compactFigures: String get() = listOfNotNull(
+        lengthCm?.let(::formatLength),
+        weightG?.let(::formatWeight),
+    ).joinToString(" · ")
 
     /** Length and weight as one line, or an empty string in the weeks before either exists. */
     val figures: String get() = listOfNotNull(

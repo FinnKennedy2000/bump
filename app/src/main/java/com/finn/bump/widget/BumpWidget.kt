@@ -6,28 +6,34 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
+import androidx.glance.Image
+import androidx.glance.ImageProvider
+import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.LinearProgressIndicator
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.updateAll
-import androidx.glance.action.actionStartActivity
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
+import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
+import androidx.glance.layout.size
+import androidx.glance.text.FontFamily
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.finn.bump.MainActivity
+import com.finn.bump.R
 import com.finn.bump.data.Bump
 import com.finn.bump.domain.Pregnancy
-import com.finn.bump.ui.theme.Moon
+import com.finn.bump.ui.components.weekMark
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import kotlin.math.abs
@@ -35,6 +41,14 @@ import kotlin.math.abs
 /**
  * Holds no state of its own: it reads the same due date the app does and recomputes,
  * so it cannot drift out of step with the app or need its own migration.
+ *
+ * Same vocabulary as Today — the week as a serif figure, the drawn mark for the week,
+ * the countdown, one clay rule filling as the weeks pass.
+ *
+ * ponytail: Glance can't use the app's bundled Gambetta (fonts come from the host's
+ * resources), so the widget's figures fall back to the platform serif. If that ever
+ * diverges too far, the fix is a RemoteViews layout with a font resource, not a second
+ * type system here.
  */
 class BumpWidget : GlanceAppWidget() {
 
@@ -51,7 +65,7 @@ class BumpWidget : GlanceAppWidget() {
                     modifier = GlanceModifier
                         .fillMaxSize()
                         .background(GlanceTheme.colors.widgetBackground)
-                        .padding(12.dp)
+                        .padding(14.dp)
                         .clickable(actionStartActivity<MainActivity>()),
                     verticalAlignment = Alignment.Vertical.CenterVertically,
                 ) {
@@ -68,43 +82,86 @@ class BumpWidget : GlanceAppWidget() {
 
                     val today = LocalDate.now()
                     val week = Pregnancy.week(due, today)
-                    val toGo = Pregnancy.daysToGo(due, today)
-
-                    Text(
-                        "Week $week",
-                        style = TextStyle(
-                            color = GlanceTheme.colors.onSurface,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                        ),
-                    )
+                    val day = Pregnancy.dayOfWeek(due, today)
                     val info = weeks[week]
-                    Row(verticalAlignment = Alignment.Vertical.CenterVertically) {
-                        // Only about two thirds of the weeks have an emoji that genuinely
-                        // depicts the thing named; the rest show the name alone.
-                        if (info.emoji != null) {
-                            Text(
-                                info.emoji,
-                                style = TextStyle(fontSize = 18.sp),
-                                modifier = GlanceModifier.padding(end = 4.dp),
-                            )
-                        }
+                    val clay = ColorProvider(R.color.clay)
+
+                    Row(
+                        modifier = GlanceModifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.Vertical.Bottom,
+                    ) {
                         Text(
-                            info.size,
+                            "$week",
                             style = TextStyle(
-                                color = ColorProvider(Moon.Piccolo),
+                                color = GlanceTheme.colors.onSurface,
+                                fontFamily = FontFamily.Serif,
+                                fontSize = 34.sp,
                                 fontWeight = FontWeight.Medium,
                             ),
                         )
+                        Text(
+                            "+$day",
+                            style = TextStyle(
+                                color = clay,
+                                fontFamily = FontFamily.Serif,
+                                fontSize = 17.sp,
+                            ),
+                            modifier = GlanceModifier.padding(start = 3.dp, bottom = 3.dp),
+                        )
+                        Spacer(GlanceModifier.defaultWeight())
+                        Column(horizontalAlignment = Alignment.Horizontal.End) {
+                            Text(
+                                info.size,
+                                style = TextStyle(
+                                    color = GlanceTheme.colors.onSurface,
+                                    fontFamily = FontFamily.Serif,
+                                    fontSize = 17.sp,
+                                ),
+                            )
+                            if (info.lengthCm != null) {
+                                Text(
+                                    info.compactFigures,
+                                    style = TextStyle(
+                                        color = GlanceTheme.colors.onSurfaceVariant,
+                                        fontSize = 11.sp,
+                                    ),
+                                )
+                            }
+                        }
+                        Image(
+                            provider = ImageProvider(weekMark(week)),
+                            contentDescription = null,
+                            modifier = GlanceModifier.size(34.dp).padding(start = 8.dp),
+                        )
                     }
-                    Text(
-                        countdown(toGo),
-                        style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant),
-                    )
+
+                    Row(
+                        modifier = GlanceModifier.fillMaxWidth().padding(top = 10.dp),
+                        verticalAlignment = Alignment.Vertical.Bottom,
+                    ) {
+                        Text(
+                            countdown(Pregnancy.daysToGo(due, today)),
+                            style = TextStyle(
+                                color = GlanceTheme.colors.onSurface,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                            ),
+                        )
+                        Spacer(GlanceModifier.defaultWeight())
+                        Text(
+                            due.format(java.time.format.DateTimeFormatter.ofPattern("d MMM")),
+                            style = TextStyle(
+                                color = GlanceTheme.colors.onSurfaceVariant,
+                                fontSize = 11.sp,
+                            ),
+                        )
+                    }
+
                     LinearProgressIndicator(
                         progress = Pregnancy.progress(due, today),
                         modifier = GlanceModifier.fillMaxWidth().padding(top = 6.dp),
-                        color = ColorProvider(Moon.Piccolo),
+                        color = clay,
+                        backgroundColor = ColorProvider(R.color.track),
                     )
                 }
             }

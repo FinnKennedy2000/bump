@@ -1,0 +1,18 @@
+<!-- Generated from the Bump Redesign design doc. One flat mark per week. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp"
+    android:height="40dp"
+    android:viewportWidth="40"
+    android:viewportHeight="40">
+    <path
+        android:pathData="M10.5,23.5 a9.5,7.8 0 1,0 19,0 a9.5,7.8 0 1,0 -19,0 Z"
+        android:fillColor="#C4402E" />
+    <path
+        android:pathData="M14.5 17.5c1.5 4 1.5 8.5 0 12M25.5 17.5c-1.5 4-1.5 8.5 0 12"
+        android:fillColor="#00000000"
+        android:strokeColor="#A62F20"
+        android:strokeWidth="0.8" />
+    <path
+        android:pathData="M20 15.5l-4-2.5 4 1 4-1z"
+        android:fillColor="#4E6A43" />
+</vector>

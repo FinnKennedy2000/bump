@@ -13,8 +13,9 @@ Offline Android pregnancy tracker. Personal app, sideloaded, no backend.
   data when the user explicitly turns it into an `Appointment`.
 - **Kick counting stays uninterpreted.** Count and time only — no target counts, no
   "normal/abnormal" judgement.
-- **Contrast is not negotiable.** Body text meets WCAG AA 4.5:1 in both themes. This is
-  why the dark scheme deviates from Moon's `trunks` token; see `Color.kt`.
+- **Contrast is not negotiable.** Body text meets WCAG AA 4.5:1 in both themes. Where a
+  token from the design doc fails that as text it is darkened or lightened along its own
+  hue and the doc value kept for dots and rules only; see `Color.kt`.
 
 ## Architecture
 
@@ -39,4 +40,6 @@ default.
   naming the ceiling and the upgrade path.
 - Bundled reference content (`weeks.json`, `milestones.json`) lives in `res/raw`, is
   parsed once through `Bump`, and is validated by a JVM test that reads the real file.
+- One drawn mark per week lives in `res/drawable/week_NN.xml` (3..40), looked up by
+  number in `ui/components/WeekMark.kt`. A JVM test checks the set is complete.
 - Tests cover `domain` and the bundled content. Compose layout is not unit tested.

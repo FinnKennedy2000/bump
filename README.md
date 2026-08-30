@@ -1,9 +1,10 @@
 # Bump
 
-An offline Android pregnancy tracker. Week-by-week size and development info, a
-countdown, a to-scale size screen for every week, the typical NHS antenatal schedule on
-a calendar, the baby's name and sex as you learn them, appointments, kick counting,
-weight and notes, plus a homescreen widget.
+An offline Android pregnancy tracker. Three screens — Today, Journey, Log — covering
+week-by-week size and development, a countdown, a drawn mark and to-scale measurement
+for every week, the typical NHS antenatal schedule as a timeline or a month grid, the
+baby's name and sex as you learn them, appointments, kick counting, weight and notes,
+plus a homescreen widget.
 
 Personal app, sideloaded. No accounts, no backend, no analytics, and no `INTERNET`
 permission.
@@ -34,19 +35,31 @@ library — see the spec for why each was left out.
 |---|---|
 | `domain` | Pure date arithmetic, the week content model and the care milestones. No Android imports. |
 | `data`   | `AppState`, DataStore persistence, repository. |
-| `ui`     | Compose screens and the Moon theme. |
+| `ui`     | Compose screens and the Bump theme. |
 | `widget` | The Glance homescreen widget. |
 
 ## Design system
 
-Themed with [Moon Design System v1](https://www.figma.com/community), ported at the
-**token** layer only — colours, DM Sans type ramp, radii, spacing — into `MoonTheme`,
-which wraps `MaterialTheme` so M3 components pick it up from one file. Moon's Figma
-component library is not ported.
+Paper and ink. A warm off-white ground, hairline rules instead of stacked cards, clay as
+the only colour that acts, and four muted hues that mean scan / appointment / test /
+admin. Two families split by job: **Gambetta** (serif) for every measured figure — the
+week number, the size, lengths, weights, dates — and **Satoshi** for the interface. Both
+are bundled TTFs under the ITF Free Font License; the app has no `INTERNET` permission,
+so no downloadable-fonts provider.
 
-One deliberate deviation: Moon defines its secondary text colour `trunks` (`#595D62`)
-identically in light and dark. On its own dark background that is ~3.4:1, under the WCAG
-AA floor for body text, so the dark scheme lightens it to `#A3A8AE`.
+Tokens live in `ui/theme/Color.kt` and are mapped onto Material 3 in `BumpTheme`, so M3
+components pick the palette up from one file. What M3 has no slot for — the hairline
+tier, the micro-label tier, the four meanings — rides alongside as `BumpExtras`.
+
+Three tokens deviate from the source design where it failed contrast as *text*: the
+light micro-label (`#8A7D73` → `#736759`), the dark micro-label (`#776D64` → `#948A7F`)
+and ochre used as words (`#C0871F` → `#8A5F12`). The original values are kept for dots
+and rules. Body text clears WCAG AA 4.5:1 in both themes.
+
+Each week 3–40 has one flat vector mark in `res/drawable/week_NN.xml`, generated from
+the design doc and shown on Today, the timeline, the week sheet, the size chart and the
+widget. There is no emoji set any more: two thirds coverage meant two thirds of the
+weeks looked unfinished.
 
 ## Build
 
@@ -71,11 +84,11 @@ instrumentation tests.
 
 Sizes, lengths and weights are population averages for orientation only. Lengths are
 crown-rump to week 20 and crown-heel from week 21, which is why the figure jumps there.
-The Sizes screen draws each week's actual measurement; the emoji next to it is only set
-where one genuinely depicts the fruit or vegetable named, since a wrong picture is worse
-than none.
+Every week is drawn to scale against week 40, and the week sheet will draw it at real
+size on the glass if you ask — approximately, since a display's reported physical density
+is only approximate, which the caption says.
 
-The calendar shows the typical NHS antenatal pathway (England, NICE NG201) as week
+Journey shows the typical NHS antenatal pathway (England, NICE NG201) as week
 windows, not booked appointments. They are suggestions of what usually happens when;
 your midwife confirms your actual dates. A milestone only becomes real data in the app
 when you explicitly add it to your own appointments.

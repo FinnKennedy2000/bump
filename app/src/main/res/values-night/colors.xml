@@ -1,4 +1,5 @@
 <resources>
-    <!-- Moon "goku", dark mode. -->
-    <color name="goku">#0B0B0B</color>
+    <color name="paper">#131110</color>
+    <color name="clay">#E4805C</color>
+    <color name="track">#2E2926</color>
 </resources>
