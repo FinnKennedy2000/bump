@@ -18,6 +18,8 @@ import com.finn.bump.domain.MilestoneKind
 @Immutable
 data class BumpExtras(
     val label: Color,
+    val selected: Color,
+    val onSelected: Color,
     val rule: Color,
     val track: Color,
     val faint: Color,
@@ -93,6 +95,8 @@ private val DarkScheme = darkColorScheme(
 
 private val LightExtras = BumpExtras(
     label = Palette.LabelLight,
+    selected = Palette.SelectedLight,
+    onSelected = Palette.PaperLight,
     rule = Palette.RuleLight,
     track = Palette.TrackLight,
     faint = Palette.FaintLight,
@@ -107,6 +111,8 @@ private val LightExtras = BumpExtras(
 
 private val DarkExtras = BumpExtras(
     label = Palette.LabelDark,
+    selected = Palette.SelectedDark,
+    onSelected = Palette.InkDark,
     rule = Palette.RuleDark,
     track = Palette.TrackDark,
     faint = Palette.FaintDark,

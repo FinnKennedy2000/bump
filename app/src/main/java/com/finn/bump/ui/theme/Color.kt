@@ -47,10 +47,26 @@ object Palette {
     val TrackLight = Color(0xFFEAE2D8)
     val FaintLight = Color(0xFFC3B8AA)
 
-    val BorderDark = Color(0xFF2E2926)
+    /**
+     * Interactive boundaries — button and segment frames — sit a step above the rules
+     * they share a screen with. At the rule's #2E2926 a bordered control on the dark
+     * ground measures 1.3:1 and the frame simply is not there.
+     */
+    val BorderDark = Color(0xFF4A433E)
     val RuleDark = Color(0xFF2E2926)
     val TrackDark = Color(0xFF2E2926)
     val FaintDark = Color(0xFF4A433E)
+
+    /**
+     * The fill under a selected segment or chip.
+     *
+     * Light is ink, straight from the doc. Dark is *not* the inverse: flipping ink puts a
+     * near-white slab on a dark screen, which reads as a stray pill rather than a
+     * selection. It is the ground lifted a step instead, which is what "raised" means on
+     * a dark theme.
+     */
+    val SelectedLight = Color(0xFF17130F)
+    val SelectedDark = Color(0xFF3A3430)
 
     val HoverLight = Color(0x0A17130F)
     val HoverDark = Color(0x14F5F0EA)

@@ -133,7 +133,12 @@ fun ScaleBar(
     }
 }
 
-/** A bordered two-or-more-way switch: the selected segment is ink, the rest are quiet. */
+/**
+ * A bordered two-or-more-way switch: the selected segment is filled, the rest are quiet.
+ *
+ * The fill is a theme token rather than `onBackground`, which would invert to near-white
+ * on the dark theme and read as a stray pill.
+ */
 @Composable
 fun <T> SegmentedToggle(
     options: List<T>,
@@ -156,7 +161,7 @@ fun <T> SegmentedToggle(
                     .weight(1f)
                     .fillMaxWidth()
                     .background(
-                        if (on) MaterialTheme.colorScheme.onBackground else Color.Transparent,
+                        if (on) LocalBumpExtras.current.selected else Color.Transparent,
                         MaterialTheme.shapes.extraSmall,
                     )
                     .clickable(enabled = !on) { onSelect(option) },
@@ -170,7 +175,7 @@ fun <T> SegmentedToggle(
                         MaterialTheme.typography.bodySmall
                     },
                     color = if (on) {
-                        MaterialTheme.colorScheme.background
+                        LocalBumpExtras.current.onSelected
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
                     },

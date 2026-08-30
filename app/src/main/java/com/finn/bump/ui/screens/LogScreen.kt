@@ -181,7 +181,7 @@ private fun Chips(selected: Filter, onSelect: (Filter) -> Unit) {
             Box(
                 Modifier
                     .background(
-                        if (on) MaterialTheme.colorScheme.onBackground else Color.Transparent,
+                        if (on) LocalBumpExtras.current.selected else Color.Transparent,
                         MaterialTheme.shapes.small,
                     )
                     .then(
@@ -203,7 +203,7 @@ private fun Chips(selected: Filter, onSelect: (Filter) -> Unit) {
                         MaterialTheme.typography.bodySmall
                     },
                     color = if (on) {
-                        MaterialTheme.colorScheme.background
+                        LocalBumpExtras.current.onSelected
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
                     },
