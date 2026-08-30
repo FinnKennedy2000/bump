@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- No INTERNET permission: the app is entirely offline. -->
+    <!--
+      The only network use is opt-in sync to our own backend, so both phones share one
+      pregnancy record. No analytics, no third parties, no ads. Until a space is paired
+      the app makes no request at all, and it stays fully usable if sync is never enabled.
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"

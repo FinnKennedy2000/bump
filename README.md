@@ -1,12 +1,12 @@
 # Bump
 
-An offline Android pregnancy tracker. Week-by-week size and development info, a
+An offline-first Android pregnancy tracker. Week-by-week size and development info, a
 countdown, a to-scale size screen for every week, the typical NHS antenatal schedule on
 a calendar, the baby's name and sex as you learn them, appointments, kick counting,
 weight and notes, plus a homescreen widget.
 
-Personal app, sideloaded. No accounts, no backend, no analytics, and no `INTERNET`
-permission.
+Two phones can share one record, so both parents see the same appointments, kicks and
+notes. Personal app, sideloaded. No accounts, no analytics, no third-party SDKs.
 
 ## The idea
 
@@ -18,12 +18,30 @@ never disagree.
 Everything else (appointments, kicks, weights, notes) is a log the app reads back but
 never derives anything from.
 
+## Sharing
+
+Both phones hold a complete copy. Every entry is saved locally first and the app is fully
+usable with no connection; sync only reconciles afterwards, on resume and shortly after
+each change. Until you pair a phone it makes no network request at all.
+
+One phone taps the status line on the Now screen and starts sharing; that produces a code
+to send the other phone privately — the code *is* the credential. Merging is
+last-write-wins per entry, so both phones' additions survive and the most recent edit of
+anything wins. Deletes are tombstones rather than removals, which is what stops the other
+phone quietly resurrecting something you deleted.
+
+The backend is a small FastAPI service on Railway (`backend/`) that stores the document as
+an opaque blob and owns only a version number. It knows nothing about pregnancies; the
+merge rules live in the app, in `data/Merge.kt`, so there is exactly one copy of them.
+
 ## Stack
 
 Kotlin · Jetpack Compose · Material 3 · Glance · DataStore · kotlinx.serialization
+Backend: Python · FastAPI · Postgres · Railway
 
 Single `:app` module. No DI framework, no navigation library, no database, no chart
-library — see the spec for why each was left out.
+library — see the spec for why each was left out. Sync adds no HTTP library either: three
+endpoints go through `HttpURLConnection`.
 
 - minSdk 26, target/compileSdk 35
 - AGP 8.7.3, Kotlin 2.0.21, Gradle 8.14, JDK 17
@@ -33,7 +51,8 @@ library — see the spec for why each was left out.
 | Package | What lives there |
 |---|---|
 | `domain` | Pure date arithmetic, the week content model and the care milestones. No Android imports. |
-| `data`   | `AppState`, DataStore persistence, repository. |
+| `data`   | `AppState`, DataStore persistence, repository, and the sync merge. |
+| `data.sync` | Pairing, the HTTP client and the pull-merge-push loop. |
 | `ui`     | Compose screens and the Moon theme. |
 | `widget` | The Glance homescreen widget. |
 
@@ -64,8 +83,12 @@ JVM unit tests over `domain` — gestational arithmetic and its edge cases (due 
 overdue, pre-term, week rollover, trimester boundaries), the week-table lookup, care
 milestone window arithmetic, and a parse of the real bundled `weeks.json` and
 `milestones.json`. Plus a `data` test that decodes the exact `AppState` JSON shape
-already on disk, so adding a field can never silently wipe a saved pregnancy. No
+already on disk, so adding a field can never silently wipe a saved pregnancy, and a
+`MergeTest` covering the sync scenarios two phones actually produce — concurrent adds,
+edit-versus-delete in both directions, and repeated merges changing nothing. No
 instrumentation tests.
+
+Backend tests run against a real Postgres; see `backend/README.md`.
 
 ## A note on the content
 
@@ -86,3 +109,7 @@ The app is general information, not medical advice.
 
 `docs/superpowers/specs/2026-08-29-bump-pregnancy-tracker-design.md` — the full design
 spec, including what was deliberately left out.
+
+`docs/SYNC_PLAN.md` — how sharing works and why it is built this way.
+
+`backend/README.md` — the sync API, running its tests, and deploying it.

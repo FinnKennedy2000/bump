@@ -3,6 +3,7 @@ package com.finn.bump
 import com.finn.bump.data.AppState
 import com.finn.bump.data.BabySex
 import com.finn.bump.data.displayName
+import com.finn.bump.data.withoutTombstones
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -27,6 +28,24 @@ class AppStateTest {
         assertEquals("Pip", state.babyName)
         assertEquals("", state.babyNickname)
         assertEquals(BabySex.UNKNOWN, state.babySex)
+    }
+
+    @Test
+    fun `state saved before sync existed still loads, with nothing deleted`() {
+        // The upgrade path for a phone that has been logging since before sharing was
+        // added. Missing tombstones must read as "not deleted", and a missing details
+        // stamp as the oldest possible edit, so the first merge cannot wipe the record.
+        val old = """
+            {"dueDate":"2026-12-25","babyName":"Pip","appointments":[],"weights":[],
+             "notes":[{"id":"n1","createdAtMillis":1,"week":10,"text":"hi","updatedAt":5}],
+             "kickSessions":[]}
+        """.trimIndent()
+
+        val state = json.decodeFromString(AppState.serializer(), old)
+
+        assertEquals(0L, state.detailsUpdatedAt)
+        assertEquals(false, state.notes.single().deleted)
+        assertEquals(state, state.withoutTombstones())
     }
 
     @Test

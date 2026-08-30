@@ -9,3 +9,14 @@ captures/
 .cxx
 *.apk
 *.keystore
+node_modules/
+
+# backend
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# tooling caches
+.serena/
+.claude/worktrees/

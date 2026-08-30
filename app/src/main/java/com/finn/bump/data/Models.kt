@@ -30,15 +30,20 @@ private fun newId() = UUID.randomUUID().toString()
 enum class BabySex { UNKNOWN, GIRL, BOY, SURPRISE }
 
 /**
- * Every logged item carries a stable [id] and an [updatedAt] stamp.
+ * Every logged item carries a stable [id], an [updatedAt] stamp and a [deleted] tombstone.
  *
- * They earn their place locally — [id] gives stable list keys and makes edit/delete/undo
- * unambiguous, [updatedAt] orders edits. They are also exactly what a future two-device
- * sync needs, so adding them now costs nothing and avoids a migration later.
+ * [id] gives stable list keys and makes edit/delete/undo unambiguous; [updatedAt] orders
+ * edits. Together they are what sync merges on.
+ *
+ * [deleted] exists because sync cannot represent a removal any other way. If a delete
+ * simply dropped the item, the other phone — still holding it — would push it back and
+ * resurrect it. A tombstone is a normal edit that happens to mean "gone", so the same
+ * last-write-wins rule settles it. Tombstones are stripped before the UI ever sees them.
  */
 sealed interface Logged {
     val id: String
     val updatedAt: Long
+    val deleted: Boolean
 }
 
 @Serializable
@@ -48,6 +53,7 @@ data class Appointment(
     val atMillis: Long,
     val note: String = "",
     override val updatedAt: Long = System.currentTimeMillis(),
+    override val deleted: Boolean = false,
 ) : Logged
 
 @Serializable
@@ -56,6 +62,7 @@ data class WeightEntry(
     val date: Iso8601Date,
     val kg: Double,
     override val updatedAt: Long = System.currentTimeMillis(),
+    override val deleted: Boolean = false,
 ) : Logged
 
 @Serializable
@@ -65,6 +72,7 @@ data class Note(
     val week: Int,
     val text: String,
     override val updatedAt: Long = System.currentTimeMillis(),
+    override val deleted: Boolean = false,
 ) : Logged
 
 @Serializable
@@ -74,6 +82,7 @@ data class KickSession(
     val durationMillis: Long,
     val kicks: Int,
     override val updatedAt: Long = System.currentTimeMillis(),
+    override val deleted: Boolean = false,
 ) : Logged
 
 /**
@@ -85,6 +94,11 @@ data class KickSession(
  * [dueDate] is the only derived-from state in the app — everything about the pregnancy
  * itself (week, trimester, countdown, progress) is a pure function of it. A null due
  * date is the app's only state machine: null means show onboarding.
+ *
+ * [detailsUpdatedAt] stamps the four fields above it as one group. They are not [Logged]
+ * items and have no id, so sync cannot merge them field by field; the phone that edited
+ * the details most recently wins all four. That is the honest model anyway — they are
+ * edited together, on one sheet, as one decision.
  */
 @Serializable
 data class AppState(
@@ -92,6 +106,7 @@ data class AppState(
     val babyName: String = "",
     val babyNickname: String = "",
     val babySex: BabySex = BabySex.UNKNOWN,
+    val detailsUpdatedAt: Long = 0L,
     val appointments: List<Appointment> = emptyList(),
     val weights: List<WeightEntry> = emptyList(),
     val notes: List<Note> = emptyList(),

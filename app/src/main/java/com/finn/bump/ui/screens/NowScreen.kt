@@ -32,7 +32,9 @@ import com.finn.bump.data.displayName
 import com.finn.bump.domain.Pregnancy
 import com.finn.bump.domain.nextFrom
 import com.finn.bump.ui.BumpViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.finn.bump.ui.components.MedicalDisclaimer
+import com.finn.bump.ui.components.SyncStatusRow
 import com.finn.bump.ui.components.MoonCard
 import com.finn.bump.ui.components.SectionTitle
 import androidx.compose.runtime.remember
@@ -57,6 +59,8 @@ fun NowScreen(state: AppState, vm: BumpViewModel, modifier: Modifier = Modifier)
     val info = weeks[week]
     var editing by remember { mutableStateOf(false) }
     var showingSizes by remember { mutableStateOf(false) }
+    var sharing by remember { mutableStateOf(false) }
+    val syncStatus by vm.syncStatus.collectAsStateWithLifecycle()
 
     if (showingSizes) {
         SizesScreen(state, vm, onBack = { showingSizes = false }, modifier = modifier)
@@ -173,12 +177,22 @@ fun NowScreen(state: AppState, vm: BumpViewModel, modifier: Modifier = Modifier)
                 MilestoneCard(nextMilestone)
             }
 
-            MedicalDisclaimer(Modifier.padding(vertical = Spacing.p6))
+            SyncStatusRow(
+                status = syncStatus,
+                onClick = { sharing = true },
+                modifier = Modifier.padding(top = Spacing.p6),
+            )
+
+            MedicalDisclaimer(Modifier.padding(vertical = Spacing.p4))
         }
     }
 
     if (editing) {
         BabyDetailsSheet(state = state, vm = vm, onDismiss = { editing = false })
+    }
+
+    if (sharing) {
+        SyncSheet(vm = vm, onDismiss = { sharing = false })
     }
 }
 

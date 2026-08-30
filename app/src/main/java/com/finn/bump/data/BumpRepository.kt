@@ -2,6 +2,8 @@ package com.finn.bump.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import com.finn.bump.data.sync.SyncSettings
+import com.finn.bump.data.sync.Syncer
 import com.finn.bump.domain.Milestone
 import com.finn.bump.domain.MilestoneTable
 import com.finn.bump.domain.WeekInfo
@@ -9,6 +11,7 @@ import com.finn.bump.domain.WeekTable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.KSerializer
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 
 /**
@@ -27,10 +30,19 @@ object Bump {
     @Volatile private var repo: BumpRepository? = null
     @Volatile private var weeks: WeekTable? = null
     @Volatile private var milestones: MilestoneTable? = null
+    @Volatile private var syncer: Syncer? = null
 
     fun repository(context: Context): BumpRepository =
         repo ?: synchronized(this) {
             repo ?: BumpRepository(storeOf(context)).also { repo = it }
+        }
+
+    fun syncer(context: Context): Syncer =
+        syncer ?: synchronized(this) {
+            syncer ?: Syncer(
+                repository(context),
+                SyncSettings(context.applicationContext),
+            ).also { syncer = it }
         }
 
     private fun storeOf(context: Context): DataStore<AppState> =
@@ -63,16 +75,26 @@ object Bump {
 
 class BumpRepository(private val store: DataStore<AppState>) {
 
-    val state: Flow<AppState> = store.data
+    /** What the app sees: deleted items are filtered here so no screen has to remember to. */
+    val state: Flow<AppState> = store.data.map { it.withoutTombstones() }
+
+    /** What sync sees. Tombstones must survive the round trip or deletes do not propagate. */
+    val rawState: Flow<AppState> = store.data
 
     suspend fun update(transform: (AppState) -> AppState) {
         store.updateData(transform)
     }
 
-    suspend fun setDueDate(date: Iso8601Date) = update { it.copy(dueDate = date) }
+    suspend fun setDueDate(date: Iso8601Date) =
+        update { it.copy(dueDate = date, detailsUpdatedAt = System.currentTimeMillis()) }
 
     suspend fun setBabyDetails(name: String, nickname: String, sex: BabySex) = update {
-        it.copy(babyName = name.trim(), babyNickname = nickname.trim(), babySex = sex)
+        it.copy(
+            babyName = name.trim(),
+            babyNickname = nickname.trim(),
+            babySex = sex,
+            detailsUpdatedAt = System.currentTimeMillis(),
+        )
     }
 
     suspend fun addAppointment(appointment: Appointment) =
@@ -87,20 +109,38 @@ class BumpRepository(private val store: DataStore<AppState>) {
     suspend fun addKickSession(session: KickSession) =
         update { it.copy(kickSessions = it.kickSessions + session) }
 
-    suspend fun delete(item: Logged) = update { s ->
-        when (item) {
-            is Appointment -> s.copy(appointments = s.appointments.filterNot { it.id == item.id })
-            is WeightEntry -> s.copy(weights = s.weights.filterNot { it.id == item.id })
-            is Note -> s.copy(notes = s.notes.filterNot { it.id == item.id })
-            is KickSession -> s.copy(kickSessions = s.kickSessions.filterNot { it.id == item.id })
+    suspend fun delete(item: Logged) = setDeleted(item, true)
+
+    /** Undo support: puts a deleted item back exactly as it was. */
+    suspend fun restore(item: Logged) = setDeleted(item, false)
+
+    /**
+     * A delete is an edit that sets the tombstone, not a removal — see [Logged.deleted].
+     * Undo is the same edit in reverse, which is why both go through here.
+     *
+     * The stamp is refreshed on every flip so the most recent decision wins the merge.
+     * Without it, deleting an entry the other phone edited later would lose the delete.
+     */
+    private suspend fun setDeleted(item: Logged, deleted: Boolean) {
+        val now = System.currentTimeMillis()
+        update { s ->
+            when (item) {
+                is Appointment -> s.copy(appointments = s.appointments.map {
+                    if (it.id == item.id) it.copy(deleted = deleted, updatedAt = now) else it
+                })
+                is WeightEntry -> s.copy(weights = s.weights.map {
+                    if (it.id == item.id) it.copy(deleted = deleted, updatedAt = now) else it
+                })
+                is Note -> s.copy(notes = s.notes.map {
+                    if (it.id == item.id) it.copy(deleted = deleted, updatedAt = now) else it
+                })
+                is KickSession -> s.copy(kickSessions = s.kickSessions.map {
+                    if (it.id == item.id) it.copy(deleted = deleted, updatedAt = now) else it
+                })
+            }
         }
     }
 
-    /** Undo support: puts a deleted item back exactly as it was. */
-    suspend fun restore(item: Logged) = when (item) {
-        is Appointment -> addAppointment(item)
-        is WeightEntry -> addWeight(item)
-        is Note -> addNote(item)
-        is KickSession -> addKickSession(item)
-    }
+    /** Replace the whole document, after a sync merge. */
+    suspend fun replace(state: AppState) = update { state }
 }
