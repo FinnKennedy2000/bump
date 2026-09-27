@@ -1,8 +1,6 @@
 package com.finn.bump.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -23,24 +20,56 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.finn.bump.domain.Pregnancy
+import com.finn.bump.ui.BumpViewModel
 import com.finn.bump.ui.components.DatePickerSheet
 import com.finn.bump.ui.components.MedicalDisclaimer
 import com.finn.bump.ui.components.MicroLabel
+import com.finn.bump.ui.components.OutlineButton
+import com.finn.bump.ui.components.PrimaryButton
 import com.finn.bump.ui.theme.LocalBumpExtras
 import com.finn.bump.ui.theme.Spacing
 import java.time.LocalDate
 
 /**
- * Shown whenever no due date is set. Two ways in, because people know one or the other:
- * the due date from a scan, or the first day of the last period.
+ * Two steps: the date, then sharing.
+ *
+ * The date has two ways in, because people know one or the other — the due date from a
+ * scan, or the first day of the last period. Sharing follows because whether a second
+ * phone is involved is a day-one question, and it is skippable because plenty of the
+ * time it is not.
+ *
+ * Nothing is written until the flow finishes. That is what lets the join path work: a
+ * phone that joins its partner's record must not stamp its own freshly-picked date over
+ * the details already in there — see [BumpViewModel.finishOnboarding].
  */
 @Composable
-fun OnboardingScreen(
+fun OnboardingScreen(vm: BumpViewModel) {
+    var picked by rememberSaveable { mutableStateOf<LocalDate?>(null) }
+
+    picked?.let { date ->
+        SharingFlow(
+            vm = vm,
+            entry = SharingEntry.Offer,
+            stepLabel = "Step 2 of 2",
+            onDone = { vm.finishOnboarding(date) },
+        )
+        return
+    }
+
+    DueDateStep(
+        onDueDate = { picked = it },
+        onLmp = { picked = Pregnancy.dueDateFromLmp(it) },
+    )
+}
+
+@Composable
+private fun DueDateStep(
     onDueDate: (LocalDate) -> Unit,
     onLmp: (LocalDate) -> Unit,
 ) {
@@ -54,11 +83,14 @@ fun OnboardingScreen(
                 .padding(horizontal = Spacing.p7)
                 .padding(bottom = Spacing.p8),
         ) {
-            MicroLabel(
-                "Bump",
+            Row(
                 Modifier.padding(top = Spacing.p12),
-                color = MaterialTheme.colorScheme.primary,
-            )
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.p2),
+            ) {
+                MicroLabel("Bump", color = MaterialTheme.colorScheme.primary)
+                MicroLabel("Step 1 of 2")
+            }
 
             Spacer(Modifier.weight(1f))
 
@@ -128,38 +160,6 @@ private fun WeekRuler(modifier: Modifier = Modifier) {
             "${Pregnancy.WEEKS_AT_TERM} weeks",
             Modifier.padding(start = Spacing.p2, bottom = 2.dp),
         )
-    }
-}
-
-@Composable
-private fun PrimaryButton(label: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Box(
-        modifier
-            .fillMaxWidth()
-            .height(52.dp)
-            .background(MaterialTheme.colorScheme.primary, MaterialTheme.shapes.small)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            label,
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onPrimary,
-        )
-    }
-}
-
-@Composable
-private fun OutlineButton(label: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Box(
-        modifier
-            .fillMaxWidth()
-            .height(52.dp)
-            .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.small)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(label, style = MaterialTheme.typography.bodyLarge)
     }
 }
 

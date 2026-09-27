@@ -73,6 +73,7 @@ fun TodayScreen(
     vm: BumpViewModel,
     onCountKicks: () -> Unit,
     onEveryWeek: () -> Unit,
+    onSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val due = state.dueDate ?: return
@@ -84,7 +85,6 @@ fun TodayScreen(
     var editing by remember { mutableStateOf(false) }
     var adding by remember { mutableStateOf<LogTab?>(null) }
     var sheetWeek by remember { mutableStateOf<Int?>(null) }
-    var sharing by remember { mutableStateOf(false) }
     val syncStatus by vm.syncStatus.collectAsStateWithLifecycle()
 
     Surface(color = MaterialTheme.colorScheme.background) {
@@ -180,7 +180,7 @@ fun TodayScreen(
 
             SyncStatusRow(
                 status = syncStatus,
-                onClick = { sharing = true },
+                onClick = onSettings,
                 modifier = Modifier
                     .padding(horizontal = Spacing.p6)
                     .padding(top = Spacing.p5),
@@ -197,9 +197,6 @@ fun TodayScreen(
     if (editing) {
         BabyDetailsSheet(state = state, vm = vm, onDismiss = { editing = false })
     }
-    if (sharing) {
-        SyncSheet(vm = vm, onDismiss = { sharing = false })
-    }
     adding?.let { tab ->
         AddEntrySheet(tab = tab, state = state, vm = vm, onDismiss = { adding = null })
     }
@@ -211,6 +208,7 @@ fun TodayScreen(
             dueDate = due,
             onWeek = { sheetWeek = it },
             onDismiss = { sheetWeek = null },
+            photos = state.photos,
         )
     }
 }

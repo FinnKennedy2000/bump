@@ -23,7 +23,7 @@ private val KEY_BASE_URL = stringPreferencesKey("base_url")
 private val KEY_SPACE_ID = stringPreferencesKey("space_id")
 private val KEY_TOKEN = stringPreferencesKey("token")
 
-/** The deployed backend. Editable in the pairing sheet so a redeploy is not a rebuild. */
+/** The deployed backend. Editable under Advanced in Settings so a redeploy is not a rebuild. */
 const val DEFAULT_BASE_URL = "https://bump-api-production-3acf.up.railway.app"
 
 /**
@@ -54,6 +54,18 @@ data class Pairing(val baseUrl: String, val spaceId: String, val token: String) 
 
 class SyncSettings(private val context: Context) {
 
+    /**
+     * The server a new space will be created on. Kept across unpairing: the address is a
+     * property of the deployment, not of any one pairing, and re-typing it after leaving
+     * a space would be a small punishment for nothing.
+     */
+    val baseUrl: Flow<String> =
+        context.syncDataStore.data.map { it[KEY_BASE_URL] ?: DEFAULT_BASE_URL }
+
+    suspend fun setBaseUrl(url: String) {
+        context.syncDataStore.edit { it[KEY_BASE_URL] = url }
+    }
+
     val pairing: Flow<Pairing?> = context.syncDataStore.data.map { prefs ->
         val id = prefs[KEY_SPACE_ID] ?: return@map null
         val token = prefs[KEY_TOKEN] ?: return@map null
@@ -71,7 +83,6 @@ class SyncSettings(private val context: Context) {
     /** Unpair. The local document is untouched — leaving sync must never cost you data. */
     suspend fun clear() {
         context.syncDataStore.edit {
-            it.remove(KEY_BASE_URL)
             it.remove(KEY_SPACE_ID)
             it.remove(KEY_TOKEN)
         }

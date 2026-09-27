@@ -31,6 +31,7 @@ object Bump {
     @Volatile private var weeks: WeekTable? = null
     @Volatile private var milestones: MilestoneTable? = null
     @Volatile private var syncer: Syncer? = null
+    @Volatile private var photos: PhotoFiles? = null
 
     fun repository(context: Context): BumpRepository =
         repo ?: synchronized(this) {
@@ -42,7 +43,13 @@ object Bump {
             syncer ?: Syncer(
                 repository(context),
                 SyncSettings(context.applicationContext),
+                photoFiles(context),
             ).also { syncer = it }
+        }
+
+    fun photoFiles(context: Context): PhotoFiles =
+        photos ?: synchronized(this) {
+            photos ?: PhotoFiles(context.applicationContext).also { photos = it }
         }
 
     private fun storeOf(context: Context): DataStore<AppState> =
@@ -109,6 +116,17 @@ class BumpRepository(private val store: DataStore<AppState>) {
     suspend fun addKickSession(session: KickSession) =
         update { it.copy(kickSessions = it.kickSessions + session) }
 
+    suspend fun addPhoto(photo: Photo) =
+        update { it.copy(photos = it.photos + photo.copy(caption = photo.caption.trim())) }
+
+    /** Caption and date are the only editable parts; the picture itself is fixed by its hash. */
+    suspend fun editPhoto(id: String, date: Iso8601Date, caption: String) = update { s ->
+        val now = System.currentTimeMillis()
+        s.copy(photos = s.photos.map {
+            if (it.id == id) it.copy(date = date, caption = caption.trim(), updatedAt = now) else it
+        })
+    }
+
     suspend fun delete(item: Logged) = setDeleted(item, true)
 
     /** Undo support: puts a deleted item back exactly as it was. */
@@ -135,6 +153,9 @@ class BumpRepository(private val store: DataStore<AppState>) {
                     if (it.id == item.id) it.copy(deleted = deleted, updatedAt = now) else it
                 })
                 is KickSession -> s.copy(kickSessions = s.kickSessions.map {
+                    if (it.id == item.id) it.copy(deleted = deleted, updatedAt = now) else it
+                })
+                is Photo -> s.copy(photos = s.photos.map {
                     if (it.id == item.id) it.copy(deleted = deleted, updatedAt = now) else it
                 })
             }

@@ -1,6 +1,8 @@
 package com.finn.bump.ui
 
 import android.app.Application
+import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.finn.bump.data.Appointment
@@ -10,7 +12,9 @@ import com.finn.bump.data.Bump
 import com.finn.bump.data.KickSession
 import com.finn.bump.data.Logged
 import com.finn.bump.data.Note
+import com.finn.bump.data.Photo
 import com.finn.bump.data.WeightEntry
+import com.finn.bump.data.sync.DEFAULT_BASE_URL
 import com.finn.bump.data.sync.Pairing
 import com.finn.bump.data.sync.SyncStatus
 import com.finn.bump.data.sync.SyncSettings
@@ -20,21 +24,30 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 import java.time.LocalDate
 
 class BumpViewModel(app: Application) : AndroidViewModel(app) {
 
     private val repo = Bump.repository(app)
     private val sync = Bump.syncer(app)
+    private val syncSettings = SyncSettings(app)
     val weeks = Bump.weekTable(app)
     val milestones = Bump.milestoneTable(app)
 
     val syncStatus: StateFlow<SyncStatus> = sync.status
 
-    val pairing: StateFlow<Pairing?> = SyncSettings(app).pairing
+    val pairing: StateFlow<Pairing?> = syncSettings.pairing
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /** The server a new space would be created on. Only editable while unpaired. */
+    val baseUrl: StateFlow<String> = syncSettings.baseUrl
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DEFAULT_BASE_URL)
+
+    fun setBaseUrl(url: String) = viewModelScope.launch { syncSettings.setBaseUrl(url.trim()) }
 
     /**
      * `null` while the first read is in flight, which is what lets the UI hold a blank
@@ -48,11 +61,11 @@ class BumpViewModel(app: Application) : AndroidViewModel(app) {
         refreshBumpWidget(getApplication())
     }
 
-    /** Called on resume, and by pull-to-refresh in the pairing sheet. */
+    /** Called on resume, and by "Sync now" in Settings. */
     fun syncNow() = viewModelScope.launch { sync.sync() }
 
-    fun createSpace(baseUrl: String, onResult: (Result<Pairing>) -> Unit) =
-        viewModelScope.launch { onResult(sync.createSpace(baseUrl)) }
+    fun createSpace(onResult: (Result<Pairing>) -> Unit) =
+        viewModelScope.launch { onResult(sync.createSpace(syncSettings.baseUrl.first())) }
 
     fun joinSpace(code: String, onResult: (Result<Unit>) -> Unit) =
         viewModelScope.launch {
@@ -68,6 +81,18 @@ class BumpViewModel(app: Application) : AndroidViewModel(app) {
 
     fun setDueDateFromLmp(lmp: LocalDate) = setDueDate(Pregnancy.dueDateFromLmp(lmp))
 
+    /**
+     * End of onboarding: keep the date that was picked, unless joining a partner's record
+     * already brought one. Writing ours in that case would win the details merge on
+     * recency alone and take their baby name and sex with it.
+     */
+    fun finishOnboarding(picked: LocalDate) = launch {
+        if (repo.state.first().dueDate == null) {
+            repo.setDueDate(picked)
+            refreshBumpWidget(getApplication())
+        }
+    }
+
     fun setBabyDetails(name: String, nickname: String, sex: BabySex) = launch {
         repo.setBabyDetails(name, nickname, sex)
     }
@@ -76,6 +101,34 @@ class BumpViewModel(app: Application) : AndroidViewModel(app) {
     fun addWeight(w: WeightEntry) = launch { repo.addWeight(w) }
     fun addNote(n: Note) = launch { repo.addNote(n) }
     fun addKickSession(k: KickSession) = launch { repo.addKickSession(k) }
+
+    fun addPhoto(p: Photo) = launch { repo.addPhoto(p) }
+    fun editPhoto(p: Photo, date: LocalDate, caption: String) = launch { repo.editPhoto(p.id, date, caption) }
+
+    /**
+     * Shrink and store a picked image, handing back its blob. Kept apart from [addPhoto] so
+     * the sheet can show the picture before anything is saved to the record.
+     *
+     * ponytail: a photo picked and then abandoned leaves its file behind, unreferenced.
+     * It is a few hundred KB per abandoned pick; sweep unreferenced blobs if that adds up.
+     */
+    fun importPhoto(uri: Uri, onResult: (Result<String>) -> Unit) = viewModelScope.launch {
+        onResult(
+            try {
+                Result.success(Bump.photoFiles(getApplication()).import(uri))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // Resolver and filesystem messages ("Permission Denial: opening provider…")
+                // mean nothing to the person holding the phone; keep them for logcat.
+                Log.w("Bump", "Photo import failed", e)
+                Result.failure(IllegalStateException("That picture could not be opened"))
+            } catch (e: OutOfMemoryError) {
+                // A very large panorama can still be too big to decode at a quarter size.
+                Result.failure(IllegalStateException("That picture is too large to open"))
+            }
+        )
+    }
 
     fun delete(item: Logged) = launch { repo.delete(item) }
     fun restore(item: Logged) = launch { repo.restore(item) }

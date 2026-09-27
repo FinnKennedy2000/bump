@@ -1,6 +1,10 @@
 package com.finn.bump.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -20,13 +24,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.KeyboardType
 import com.finn.bump.data.AppState
 import com.finn.bump.data.Appointment
 import com.finn.bump.data.Note
+import com.finn.bump.data.Photo
 import com.finn.bump.data.WeightEntry
 import com.finn.bump.ui.BumpViewModel
 import com.finn.bump.ui.components.DatePickerSheet
+import com.finn.bump.ui.components.OutlineButton
+import com.finn.bump.ui.components.PhotoImage
 import com.finn.bump.ui.theme.Spacing
 import java.time.LocalDate
 import java.time.LocalTime
@@ -38,8 +47,8 @@ import java.util.Locale
 internal data class Prefill(val title: String, val date: LocalDate)
 
 /**
- * One sheet for all three entry types. They share a shape — a couple of fields and a
- * date — so three near-identical sheets would be three places to fix the same bug.
+ * One sheet for every entry type. They share a shape — a couple of fields and a date —
+ * so near-identical sheets would be several places to fix the same bug.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,6 +67,24 @@ internal fun AddEntrySheet(
     var date by remember { mutableStateOf(prefill?.date ?: LocalDate.now()) }
     var time by remember { mutableStateOf(LocalTime.of(9, 0)) }
     var pickingDate by remember { mutableStateOf(false) }
+    var blob by remember { mutableStateOf<String?>(null) }
+    var importing by remember { mutableStateOf(false) }
+    var importError by remember { mutableStateOf<String?>(null) }
+
+    // The system Photo Picker: no storage permission, and the app only ever sees the one
+    // picture chosen.
+    val picker = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
+        if (uri != null) {
+            importing = true
+            importError = null
+            vm.importPhoto(uri) { result ->
+                importing = false
+                result.onSuccess { blob = it }
+                    .onFailure { importError = it.message ?: "That picture could not be opened" }
+            }
+        }
+    }
+    val pick = { picker.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly)) }
 
     val kgValue = kg.replace(',', '.').toDoubleOrNull()
     val canSave = when (tab) {
@@ -66,6 +93,7 @@ internal fun AddEntrySheet(
         // misplaced decimal point, which would otherwise wreck the chart's scale.
         LogTab.Weight -> kgValue != null && kgValue in 20.0..300.0
         LogTab.Notes -> note.isNotBlank()
+        LogTab.Photos -> blob != null
     }
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
@@ -128,6 +156,40 @@ internal fun AddEntrySheet(
                     minLines = 4,
                     modifier = Modifier.fillMaxWidth(),
                 )
+
+                LogTab.Photos -> {
+                    blob?.let {
+                        PhotoImage(
+                            blob = it,
+                            maxPx = 1024,
+                            contentDescription = "The chosen photo",
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.fillMaxWidth().height(220.dp),
+                        )
+                    }
+                    OutlineButton(
+                        when {
+                            importing -> "Opening…"
+                            blob == null -> "Choose a photo"
+                            else -> "Choose a different photo"
+                        },
+                        onClick = { if (!importing) pick() },
+                    )
+                    importError?.let {
+                        Text(it, style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error)
+                    }
+                    OutlinedTextField(
+                        value = note,
+                        onValueChange = { note = it },
+                        label = { Text("Caption (optional)") },
+                        placeholder = { Text("20 week scan") },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    TextButton(onClick = { pickingDate = true }) {
+                        Text(date.format(DateTimeFormatter.ofPattern("EEE d MMM yyyy", Locale.UK)))
+                    }
+                }
             }
 
             Button(
@@ -155,6 +217,10 @@ internal fun AddEntrySheet(
                                 week = currentWeek(state),
                                 text = note.trim(),
                             )
+                        )
+
+                        LogTab.Photos -> vm.addPhoto(
+                            Photo(date = date, caption = note, blob = blob!!)
                         )
                     }
                     onDismiss()

@@ -148,6 +148,7 @@ fun JourneyScreen(
             dueDate = due,
             onWeek = { sheetWeek = it },
             onDismiss = { sheetWeek = null },
+            photos = state.photos,
         )
     }
     prefill?.let {

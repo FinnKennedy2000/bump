@@ -20,7 +20,14 @@ makes concurrent writes safe.
 | POST   | `/spaces`            | none   | creates a space; returns the token **once**  |
 | GET    | `/spaces/{id}/state` | Bearer | `{version, state}`                           |
 | PUT    | `/spaces/{id}/state` | Bearer | needs `If-Match: <version>`; 409 when stale  |
+| GET    | `/spaces/{id}/photos`       | Bearer | `{photos: [sha256, ...]}`                    |
+| PUT    | `/spaces/{id}/photos/{sha}` | Bearer | raw JPEG; 400 unless sha256(body) = sha; idempotent; 8 MB cap |
+| GET    | `/spaces/{id}/photos/{sha}` | Bearer | the bytes                                    |
 | GET    | `/health`            | none   | Railway healthcheck                          |
+
+Photos are content-addressed: the name is the hash, so a stored photo never changes and
+needs no version. Which photos exist (date, caption, tombstone) is in the state document
+and merged by the app; this only holds the bytes.
 
 `POST /spaces` is the only unauthenticated write, so it is rate limited per IP.
 The token is stored as a sha256 hash and compared with `hmac.compare_digest`.

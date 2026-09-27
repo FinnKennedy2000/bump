@@ -123,14 +123,17 @@ class MergeTest {
             appointments = listOf(Appointment(id = "ap", title = "mine", atMillis = 1, updatedAt = 100)),
             weights = listOf(WeightEntry(id = "w", date = LocalDate.of(2026, 1, 1), kg = 60.0, updatedAt = 100)),
             kickSessions = listOf(KickSession(id = "k", startedAtMillis = 1, durationMillis = 2, kicks = 3, updatedAt = 100)),
+            photos = listOf(Photo(id = "p", date = LocalDate.of(2026, 1, 1), caption = "mine", blob = "b1", updatedAt = 100)),
         )
         val theirs = AppState(
             appointments = listOf(Appointment(id = "ap", title = "theirs", atMillis = 1, updatedAt = 200)),
             weights = listOf(WeightEntry(id = "w2", date = LocalDate.of(2026, 1, 2), kg = 61.0, updatedAt = 100)),
             kickSessions = listOf(KickSession(id = "k", startedAtMillis = 1, durationMillis = 2, kicks = 9, updatedAt = 200)),
+            photos = listOf(Photo(id = "p", date = LocalDate.of(2026, 1, 1), caption = "theirs", blob = "b1", updatedAt = 200)),
         )
 
         val merged = merge(mine, theirs)
+        assertEquals("theirs", merged.photos.single().caption)
 
         assertEquals("theirs", merged.appointments.single().title)
         assertEquals(2, merged.weights.size)
@@ -153,5 +156,42 @@ class MergeTest {
 
         assertEquals(LocalDate.of(2026, 3, 1), merge(mine, AppState()).dueDate)
         assertNull(merge(AppState(), AppState()).dueDate)
+    }
+
+    private fun photo(id: String, blob: String, deleted: Boolean = false) =
+        Photo(id = id, date = LocalDate.of(2026, 1, 1), blob = blob, updatedAt = 1, deleted = deleted)
+
+    @Test
+    fun `photo bytes move to whichever side lacks them`() {
+        val state = AppState(photos = listOf(photo("1", "mine"), photo("2", "theirs"), photo("3", "both")))
+
+        val t = photoTransfers(state, onPhone = setOf("mine", "both"), onServer = setOf("theirs", "both"))
+
+        assertEquals(setOf("mine"), t.upload)
+        assertEquals(setOf("theirs"), t.download)
+    }
+
+    @Test
+    fun `deleted photos are not transferred either way`() {
+        val state = AppState(photos = listOf(photo("1", "gone-mine", deleted = true), photo("2", "gone-theirs", deleted = true)))
+
+        val t = photoTransfers(state, onPhone = setOf("gone-mine"), onServer = setOf("gone-theirs"))
+
+        assertEquals(PhotoTransfers(emptySet(), emptySet()), t)
+    }
+
+    @Test
+    fun `a photo whose bytes are nowhere yet waits rather than failing`() {
+        val t = photoTransfers(AppState(photos = listOf(photo("1", "pending"))), emptySet(), emptySet())
+
+        assertEquals(PhotoTransfers(emptySet(), emptySet()), t)
+    }
+
+    @Test
+    fun `sample size keeps the long edge at or above the target`() {
+        assertEquals(1, sampleSize(4000, 2048))
+        assertEquals(2, sampleSize(4096, 2048))
+        assertEquals(8, sampleSize(2048, 200))
+        assertEquals(1, sampleSize(100, 2048))
     }
 }

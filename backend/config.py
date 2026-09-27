@@ -10,6 +10,10 @@ if DATABASE_URL.startswith("postgres://"):
 # appointments, weights, notes and kick sessions. Hundreds of small rows, not thousands.
 MAX_STATE_BYTES = 1024 * 1024  # 1 MB
 
+# The app re-encodes every photo to ~2048 px JPEG before upload, which lands well under
+# 1 MB. The cap is for a client that skips that step, not for a real photo.
+MAX_PHOTO_BYTES = 8 * 1024 * 1024  # 8 MB
+
 # Space creation is the only unauthenticated write. Two people need it twice, ever, so a
 # handful per hour is generous for real use and still caps what a stranger can insert.
 # Overridable because the test suite legitimately creates more than a human ever would.

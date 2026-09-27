@@ -3,11 +3,13 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- A crescent: the "moon" of the design system, and a bump. -->
+    <!--
+      Gambetta 500 "b", the app's own serif, converted from the outline in res/font to a
+      path so nothing depends on a font at render time. Letter height 52dp inside the
+      66dp safe circle, so it holds through circle, squircle and teardrop masks — and a
+      single filled path is what lets the same drawable serve as the monochrome layer.
+    -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M54,28 A26,26 0 1,0 54,80 A20,20 0 1,1 54,28 Z" />
-    <path
-        android:fillColor="#40A69F"
-        android:pathData="M68,46 m-6,0 a6,6 0 1,0 12,0 a6,6 0 1,0 -12,0" />
+        android:pathData="M47.59,37.12L47.59,52.36Q53.22,46.24 59.48,46.24Q65.25,46.24 68.42,50.30Q71.59,54.36 71.59,60.91Q71.59,69.24 66.72,74.62Q61.84,80.00 53.36,80.00Q47.02,80.00 41.11,76.44L41.11,38.97Q41.11,34.05 40.39,33.13Q39.75,32.42 36.41,31.99L36.41,30.14Q41.82,29.57 46.59,28.00L47.95,28.71Q47.59,31.70 47.59,37.12ZM56.07,51.15Q51.65,51.15 47.59,54.50L47.59,74.23Q50.37,77.51 54.71,77.51Q59.63,77.51 62.26,73.70Q64.90,69.88 64.90,63.47Q64.90,57.85 62.76,54.50Q60.62,51.15 56.07,51.15Z" />
 </vector>

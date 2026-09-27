@@ -129,7 +129,7 @@ deprecated from 2026-12-01, and it cannot set a service root directory, which th
 needs because the repo root is an Android app). `railway config apply` for infrastructure,
 `railway up` for code.
 
-The URL is the pre-filled default in the pairing sheet and stays editable, so a redeploy
+The URL is the default, editable under Advanced in Settings, so a redeploy
 to a different host is not a rebuild.
 
 ## Order of work

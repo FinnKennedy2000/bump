@@ -40,6 +40,7 @@ import com.finn.bump.ui.screens.JourneyScreen
 import com.finn.bump.ui.screens.KicksScreen
 import com.finn.bump.ui.screens.LogScreen
 import com.finn.bump.ui.screens.OnboardingScreen
+import com.finn.bump.ui.screens.SettingsScreen
 import com.finn.bump.ui.screens.SizeChartScreen
 import com.finn.bump.ui.screens.TodayScreen
 import com.finn.bump.ui.theme.LocalBumpExtras
@@ -58,7 +59,7 @@ private enum class Tab(val label: String, val icon: ImageVector) {
 }
 
 /** A screen that covers the tabs while it is open. */
-private enum class Overlay { Kicks, SizeChart }
+private enum class Overlay { Kicks, SizeChart, Settings }
 
 @Composable
 fun BumpApp(vm: BumpViewModel) {
@@ -69,7 +70,7 @@ fun BumpApp(vm: BumpViewModel) {
     val current = state ?: return
 
     if (current.dueDate == null) {
-        OnboardingScreen(onDueDate = vm::setDueDate, onLmp = vm::setDueDateFromLmp)
+        OnboardingScreen(vm)
         return
     }
 
@@ -91,8 +92,14 @@ fun BumpApp(vm: BumpViewModel) {
                 weeks = vm.weeks,
                 currentWeek = Pregnancy.week(current.dueDate!!, LocalDate.now()),
                 dueDate = current.dueDate!!,
+                photos = current.photos,
                 onBack = { overlayName = null },
             )
+            return
+        }
+
+        Overlay.Settings -> {
+            SettingsScreen(current, vm, onBack = { overlayName = null })
             return
         }
 
@@ -111,6 +118,7 @@ fun BumpApp(vm: BumpViewModel) {
                 vm = vm,
                 onCountKicks = { overlayName = Overlay.Kicks.name },
                 onEveryWeek = { overlayName = Overlay.SizeChart.name },
+                onSettings = { overlayName = Overlay.Settings.name },
                 modifier = modifier,
             )
 

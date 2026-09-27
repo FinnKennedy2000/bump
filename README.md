@@ -4,7 +4,7 @@ An offline-first Android pregnancy tracker. Three screens — Today, Journey, Lo
 covering week-by-week size and development, a countdown, a drawn mark and to-scale
 measurement for every week, the typical NHS antenatal schedule as a timeline or a month
 grid, the baby's name and sex as you learn them, appointments, kick counting, weight and
-notes, plus a homescreen widget.
+notes, a photo gallery grouped by week, plus a homescreen widget.
 
 Two phones can share one record, so both parents see the same appointments, kicks and
 notes. Personal app, sideloaded. No accounts, no analytics, no third-party SDKs.
@@ -25,8 +25,9 @@ Both phones hold a complete copy. Every entry is saved locally first and the app
 usable with no connection; sync only reconciles afterwards, on resume and shortly after
 each change. Until you pair a phone it makes no network request at all.
 
-One phone taps the status line on the Now screen and starts sharing; that produces a code
-to send the other phone privately — the code *is* the credential. Merging is
+Sharing is the last step of onboarding, and skippable; afterwards it lives in Settings,
+reached from the sync line on Today. One phone starts sharing, which produces a code to
+send the other phone privately — the code *is* the credential. Merging is
 last-write-wins per entry, so both phones' additions survive and the most recent edit of
 anything wins. Deletes are tombstones rather than removals, which is what stops the other
 phone quietly resurrecting something you deleted.
@@ -34,6 +35,12 @@ phone quietly resurrecting something you deleted.
 The backend is a small FastAPI service on Railway (`backend/`) that stores the document as
 an opaque blob and owns only a version number. It knows nothing about pregnancies; the
 merge rules live in the app, in `data/Merge.kt`, so there is exactly one copy of them.
+
+Photos sync too. Each is shrunk to about 2048 px and re-encoded on import (which also
+strips EXIF, GPS included), then stored as a file named by its sha256. Only the date,
+caption and tombstone go in the synced document; the bytes are copied separately to
+whichever side lacks them. Photos are left out of Android cloud backup — its 25 MB quota
+would fail the whole backup — so for an unpaired phone they live only on the device.
 
 ## Stack
 

@@ -86,6 +86,23 @@ data class KickSession(
 ) : Logged
 
 /**
+ * A picture — a bump photo, a scan, a keepsake — placed on the pregnancy by its [date].
+ *
+ * [blob] is the sha256 of the image bytes, which live outside this document as a file
+ * (see `PhotoFiles`). Naming the bytes by their hash makes them immutable, so only this
+ * metadata ever needs merging; the bytes are just copied to whichever side lacks them.
+ */
+@Serializable
+data class Photo(
+    override val id: String = newId(),
+    val date: Iso8601Date,
+    val caption: String = "",
+    val blob: String,
+    override val updatedAt: Long = System.currentTimeMillis(),
+    override val deleted: Boolean = false,
+) : Logged
+
+/**
  * The whole app. One serialisable tree, persisted as a single JSON document.
  *
  * [babyName] is the chosen name and [babyNickname] is what you call the bump before
@@ -111,6 +128,7 @@ data class AppState(
     val weights: List<WeightEntry> = emptyList(),
     val notes: List<Note> = emptyList(),
     val kickSessions: List<KickSession> = emptyList(),
+    val photos: List<Photo> = emptyList(),
 )
 
 /** The name, the bump name, or nothing yet — in that order. */

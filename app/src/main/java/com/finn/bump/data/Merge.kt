@@ -36,6 +36,7 @@ fun merge(local: AppState, remote: AppState): AppState {
         weights = mergeItems(local.weights, remote.weights),
         notes = mergeItems(local.notes, remote.notes),
         kickSessions = mergeItems(local.kickSessions, remote.kickSessions),
+        photos = mergeItems(local.photos, remote.photos),
     )
 }
 
@@ -63,4 +64,25 @@ fun AppState.withoutTombstones(): AppState = copy(
     weights = weights.filterNot { it.deleted },
     notes = notes.filterNot { it.deleted },
     kickSessions = kickSessions.filterNot { it.deleted },
+    photos = photos.filterNot { it.deleted },
 )
+
+/** Which photo files have to move, and which way. */
+data class PhotoTransfers(val upload: Set<String>, val download: Set<String>)
+
+/**
+ * The photo half of a sync round: after the documents are merged, copy each live photo's
+ * bytes to whichever side lacks them.
+ *
+ * Tombstoned photos are left alone in both directions — nobody needs to see them, and the
+ * bytes already on either side stay put so an undo still has them. A blob neither side
+ * holds is in neither set: the phone that took it has not uploaded it yet, and a later
+ * round will pick it up.
+ */
+fun photoTransfers(state: AppState, onPhone: Set<String>, onServer: Set<String>): PhotoTransfers {
+    val live = state.photos.filterNot { it.deleted }.mapTo(HashSet()) { it.blob }
+    return PhotoTransfers(
+        upload = live.filterTo(HashSet()) { it in onPhone && it !in onServer },
+        download = live.filterTo(HashSet()) { it in onServer && it !in onPhone },
+    )
+}

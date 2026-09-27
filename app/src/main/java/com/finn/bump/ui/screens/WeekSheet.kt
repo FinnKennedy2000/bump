@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -29,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -37,6 +39,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.finn.bump.data.Photo
 import com.finn.bump.domain.Pregnancy
 import com.finn.bump.domain.WeekInfo
 import com.finn.bump.domain.WeekTable
@@ -44,6 +47,8 @@ import com.finn.bump.domain.formatLength
 import com.finn.bump.domain.formatWeight
 import com.finn.bump.ui.components.MedicalDisclaimer
 import com.finn.bump.ui.components.MicroLabel
+import com.finn.bump.ui.components.PhotoImage
+import com.finn.bump.ui.components.PhotoViewer
 import com.finn.bump.ui.components.Rule
 import com.finn.bump.ui.components.ScaleBar
 import com.finn.bump.ui.components.SegmentedToggle
@@ -78,11 +83,14 @@ internal fun WeekSheet(
     dueDate: LocalDate,
     onWeek: (Int) -> Unit,
     onDismiss: () -> Unit,
+    photos: List<Photo> = emptyList(),
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val info = weeks[week]
     val extras = LocalBumpExtras.current
     var scale by remember { mutableStateOf(Scale.Relative) }
+    var viewing by remember { mutableStateOf<Photo?>(null) }
+    val thisWeeks = photos.filter { Pregnancy.week(dueDate, it.date) == week }.sortedBy { it.date }
 
     val start = dueDate.minusDays((Pregnancy.TERM_DAYS - week * 7).toLong())
 
@@ -155,6 +163,26 @@ internal fun WeekSheet(
                 modifier = Modifier.padding(top = Spacing.p5),
             )
 
+            if (thisWeeks.isNotEmpty()) {
+                MicroLabel("Your photos", Modifier.padding(top = Spacing.p5, bottom = Spacing.p2))
+                Row(
+                    Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.p2),
+                ) {
+                    thisWeeks.forEach { photo ->
+                        PhotoImage(
+                            blob = photo.blob,
+                            maxPx = 300,
+                            contentDescription = photo.caption.ifBlank { "Photo from week $week" },
+                            modifier = Modifier
+                                .size(96.dp)
+                                .clip(MaterialTheme.shapes.small)
+                                .clickable(onClickLabel = "Open photo") { viewing = photo },
+                        )
+                    }
+                }
+            }
+
             GrowthCurve(weeks, week, Modifier.padding(top = Spacing.p6))
 
             Rule(Modifier.padding(top = Spacing.p5))
@@ -169,6 +197,9 @@ internal fun WeekSheet(
             MedicalDisclaimer(Modifier.padding(top = Spacing.p5))
         }
     }
+
+    // View only: edits and deletes live in the Log, where there is a snackbar for undo.
+    viewing?.let { PhotoViewer(it, dueDate, onDismiss = { viewing = null }) }
 }
 
 @Composable

@@ -30,6 +30,9 @@ one record. Personal app, sideloaded, two users.
 - The due date is the only derived-from state. Never store week, trimester or countdown;
   compute them.
 - All state lives in one `AppState` document in DataStore. Add a field, not a database.
+  The one exception is photo bytes: files in `filesDir/photos/<sha256>.jpg`
+  (`data/PhotoFiles.kt`), with only the `Photo` metadata in `AppState`. Named by hash, a
+  file never changes, so sync copies it (`photoTransfers` in `Merge.kt`) and never merges.
 - Widget and app read the same store, so the widget holds no state of its own.
 - Sync is client-merged: the server stores the document as an opaque blob and owns only a
   version number. Reconciliation rules live once, in `data/Merge.kt`, pure and JVM-tested.
@@ -40,11 +43,11 @@ one record. Personal app, sideloaded, two users.
 
 ## Deliberately absent
 
-No Hilt/Koin, no Navigation library, no Room, no chart library. On the network side: no
-OkHttp/Ktor/Retrofit (three endpoints do not need one), no WorkManager (sync runs on
-resume and after writes; the app has nothing to do in the background), no user accounts
-(two people who already trust each other share one code). Each was considered and
-rejected. Adding one back is a decision worth making explicitly, not a default.
+No Hilt/Koin, no Navigation library, no Room, no chart library, no image loader (Coil).
+On the network side: no OkHttp/Ktor/Retrofit (a handful of endpoints do not need one), no
+WorkManager (sync runs on resume and after writes; the app has nothing to do in the
+background), no user accounts (two people who already trust each other share one code).
+Each was considered and rejected. Adding one back is a decision worth making explicitly, not a default.
 
 ## Style
 

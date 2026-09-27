@@ -47,6 +47,17 @@ fun SyncStatusRow(status: SyncStatus, onClick: () -> Unit, modifier: Modifier = 
     }
 }
 
+/**
+ * The same state in three or four words, for the Settings block where the label beside
+ * it already says "Sharing" and the long sentence would only repeat it.
+ */
+fun syncStatusWords(status: SyncStatus): String = when (status) {
+    SyncStatus.Off -> "Off"
+    SyncStatus.Syncing -> "Syncing…"
+    is SyncStatus.Synced -> "Synced ${relative(status.atMillis)}"
+    is SyncStatus.Failed -> "Not synced"
+}
+
 private fun relative(millis: Long): String {
     val minutes = TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - millis)
     return when {

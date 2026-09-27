@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.finn.bump.data.Photo
 import com.finn.bump.domain.WeekInfo
 import com.finn.bump.domain.WeekTable
 import com.finn.bump.ui.components.MicroLabel
@@ -55,6 +56,7 @@ internal fun SizeChartScreen(
     weeks: WeekTable,
     currentWeek: Int,
     dueDate: LocalDate,
+    photos: List<Photo>,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -143,6 +145,7 @@ internal fun SizeChartScreen(
             dueDate = dueDate,
             onWeek = { sheetWeek = it },
             onDismiss = { sheetWeek = null },
+            photos = photos,
         )
     }
 }

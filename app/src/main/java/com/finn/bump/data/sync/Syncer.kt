@@ -1,13 +1,16 @@
 package com.finn.bump.data.sync
 
 import com.finn.bump.data.BumpRepository
+import com.finn.bump.data.PhotoFiles
 import com.finn.bump.data.merge
+import com.finn.bump.data.photoTransfers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
+import java.io.IOException
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -34,6 +37,7 @@ sealed interface SyncStatus {
 class Syncer(
     private val repo: BumpRepository,
     private val settings: SyncSettings,
+    private val photos: PhotoFiles,
     private val client: SyncClient = SyncClient(Json { ignoreUnknownKeys = true; encodeDefaults = true }),
 ) {
 
@@ -70,6 +74,7 @@ class Syncer(
             _status.value = SyncStatus.Syncing
             try {
                 syncOnce(pairing, allowRetry = true)
+                syncPhotos(pairing)
                 _status.value = SyncStatus.Synced(System.currentTimeMillis())
             } catch (e: CancellationException) {
                 // Not a failure: the screen went away, or a newer sync superseded this one.
@@ -83,6 +88,37 @@ class Syncer(
                 // Letting it escape would crash the app over a failed background refresh.
                 _status.value = SyncStatus.Failed(e.message ?: "Network unavailable")
             }
+        }
+    }
+
+    /**
+     * Copy photo bytes to whichever side lacks them, after the documents agree on which
+     * photos exist.
+     *
+     * Runs after the state push rather than before, so the partner can briefly see a
+     * photo's caption before its picture; the placeholder covers that, and one ordering
+     * rule is simpler than interleaving the two.
+     *
+     * Each photo is tried on its own, so one that keeps failing cannot hold back the rest.
+     * Failures are still counted and reported — the next round retries only what is
+     * missing — because a photo that silently never arrives is the failure this must not have.
+     */
+    private suspend fun syncPhotos(pairing: Pairing) {
+        val transfers = photoTransfers(repo.rawState.first(), photos.stored(), client.listPhotos(pairing))
+        var failed = 0
+        suspend fun attempt(move: suspend () -> Unit) {
+            try {
+                move()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                failed++
+            }
+        }
+        for (blob in transfers.upload) attempt { client.putPhoto(pairing, blob, photos.read(blob)) }
+        for (blob in transfers.download) attempt { photos.write(blob, client.getPhoto(pairing, blob)) }
+        if (failed > 0) {
+            throw IOException(if (failed == 1) "A photo didn't transfer" else "$failed photos didn't transfer")
         }
     }
 

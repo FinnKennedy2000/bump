@@ -8,12 +8,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -159,7 +163,7 @@ fun <T> SegmentedToggle(
             Box(
                 Modifier
                     .weight(1f)
-                    .fillMaxWidth()
+                    .fillMaxHeight()
                     .background(
                         if (on) LocalBumpExtras.current.selected else Color.Transparent,
                         MaterialTheme.shapes.extraSmall,
@@ -212,4 +216,103 @@ fun MedicalDisclaimer(modifier: Modifier = Modifier) {
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier.fillMaxWidth(),
     )
+}
+
+/**
+ * The clay action. One per screen: it is the thing the screen is for.
+ *
+ * Hand-rolled rather than Material's Button because the design has no elevation and no
+ * pill — a 52dp block with the small radius, matching every other surface in the app.
+ */
+@Composable
+fun PrimaryButton(
+    label: String,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier
+            .fillMaxWidth()
+            .height(52.dp)
+            .background(
+                if (enabled) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    LocalBumpExtras.current.faint
+                },
+                MaterialTheme.shapes.small,
+            )
+            .clickable(enabled = enabled, onClickLabel = label, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            label,
+            style = MaterialTheme.typography.titleLarge,
+            // Not onPrimary when disabled: the clay is gone, and clay's text colour on
+            // the muted fill is a label you have to lean in to read.
+            color = if (enabled) {
+                MaterialTheme.colorScheme.onPrimary
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            },
+        )
+    }
+}
+
+/** The second action: same block, hairline instead of fill. */
+@Composable
+fun OutlineButton(label: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Box(
+        modifier
+            .fillMaxWidth()
+            .height(52.dp)
+            .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.small)
+            .clickable(onClickLabel = label, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(label, style = MaterialTheme.typography.bodyLarge)
+    }
+}
+
+/** The way out of a screen: words, no frame, so it never competes with the two above. */
+@Composable
+fun QuietButton(label: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Box(
+        modifier
+            .fillMaxWidth()
+            .height(44.dp)
+            .clickable(onClickLabel = label, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+/** A back affordance that names where it goes, since the app has no title bar. */
+@Composable
+fun BackRow(label: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Row(
+        modifier
+            .clickable(onClickLabel = "Back to $label", onClick = onClick)
+            .padding(vertical = Spacing.p2),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Spacing.p1),
+    ) {
+        Icon(
+            Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(18.dp),
+        )
+        Text(
+            label,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
 }

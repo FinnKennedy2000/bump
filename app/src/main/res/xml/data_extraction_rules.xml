@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Photos are left out of cloud backup on purpose: its quota is 25 MB, and going over it
+  fails the whole backup rather than just the photos. For a paired phone the sync server
+  already holds them. Device-to-device transfer has no such limit, so it takes them.
+-->
 <data-extraction-rules>
     <cloud-backup>
         <include domain="file" path="datastore/" />
     </cloud-backup>
     <device-transfer>
         <include domain="file" path="datastore/" />
+        <include domain="file" path="photos/" />
     </device-transfer>
 </data-extraction-rules>
