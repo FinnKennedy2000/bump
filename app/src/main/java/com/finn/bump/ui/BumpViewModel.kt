@@ -62,7 +62,7 @@ class BumpViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /** Called on resume, and by "Sync now" in Settings. */
-    fun syncNow() = viewModelScope.launch { sync.sync() }
+    fun syncNow() = viewModelScope.launch { syncAndRedraw() }
 
     fun createSpace(onResult: (Result<Pairing>) -> Unit) =
         viewModelScope.launch { onResult(sync.createSpace(syncSettings.baseUrl.first())) }
@@ -95,6 +95,17 @@ class BumpViewModel(app: Application) : AndroidViewModel(app) {
 
     fun setBabyDetails(name: String, nickname: String, sex: BabySex) = launch {
         repo.setBabyDetails(name, nickname, sex)
+    }
+
+    /** Both end the countdown on both phones, so the widget is redrawn with the write. */
+    fun setBornOn(date: LocalDate?) = launch {
+        repo.setBornOn(date)
+        refreshBumpWidget(getApplication())
+    }
+
+    fun setPaused(paused: Boolean) = launch {
+        repo.setPaused(paused)
+        refreshBumpWidget(getApplication())
     }
 
     fun addAppointment(a: Appointment) = launch { repo.addAppointment(a) }
@@ -146,9 +157,15 @@ class BumpViewModel(app: Application) : AndroidViewModel(app) {
             pendingSync?.cancel()
             pendingSync = viewModelScope.launch {
                 delay(SYNC_DEBOUNCE_MILLIS)
-                sync.sync()
+                syncAndRedraw()
             }
         }
+    }
+
+    /** A sync can bring the partner's birth date or pause, which the widget has to show. */
+    private suspend fun syncAndRedraw() {
+        sync.sync()
+        refreshBumpWidget(getApplication())
     }
 
     private companion object {

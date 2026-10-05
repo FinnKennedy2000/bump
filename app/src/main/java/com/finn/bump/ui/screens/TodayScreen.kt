@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.finn.bump.data.AppState
+import com.finn.bump.data.measuredOn
 import com.finn.bump.data.displayName
 import com.finn.bump.domain.MilestoneWindow
 import com.finn.bump.domain.Pregnancy
@@ -58,6 +59,7 @@ import kotlin.math.roundToInt
 
 private val Today = DateTimeFormatter.ofPattern("EEE d MMM", Locale.UK)
 private val DueDate = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.UK)
+private val BornOn = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.UK)
 private val AppointmentAt = DateTimeFormatter.ofPattern("EEE d MMM, HH:mm", Locale.UK)
 
 /**
@@ -78,8 +80,8 @@ fun TodayScreen(
 ) {
     val due = state.dueDate ?: return
     val today = LocalDate.now()
-    val week = Pregnancy.week(due, today)
-    val day = Pregnancy.dayOfWeek(due, today)
+    val week = Pregnancy.week(due, state.measuredOn(today))
+    val day = Pregnancy.dayOfWeek(due, state.measuredOn(today))
     val info = vm.weeks[week]
 
     var editing by remember { mutableStateOf(false) }
@@ -123,60 +125,65 @@ fun TodayScreen(
                 MicroLabel(today.format(Today))
             }
 
-            // The week, set as one measured figure: the number, the day, the unit.
-            Column(Modifier.padding(horizontal = Spacing.p6).padding(top = Spacing.p3)) {
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text("$week", style = MaterialTheme.typography.displayLarge)
+            if (state.paused || state.bornOn != null) {
+                Ended(state, due, Modifier.padding(horizontal = Spacing.p6).padding(top = Spacing.p5))
+            } else {
+                // The week, set as one measured figure: the number, the day, the unit.
+                Column(Modifier.padding(horizontal = Spacing.p6).padding(top = Spacing.p3)) {
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        Text("$week", style = MaterialTheme.typography.displayLarge)
+                        Text(
+                            "+$day",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(start = Spacing.p2, bottom = 6.dp),
+                        )
+                        MicroLabel(
+                            "weeks",
+                            Modifier.padding(start = Spacing.p2, bottom = 12.dp),
+                        )
+                    }
                     Text(
-                        "+$day",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(start = Spacing.p2, bottom = 6.dp),
-                    )
-                    MicroLabel(
-                        "weeks",
-                        Modifier.padding(start = Spacing.p2, bottom = 12.dp),
+                        listOfNotNull(
+                            trimesterName(Pregnancy.trimester(week)),
+                            state.babySex.headline,
+                        ).joinToString("  ·  "),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                Text(
-                    listOfNotNull(
-                        trimesterName(Pregnancy.trimester(week)),
-                        state.babySex.headline,
-                    ).joinToString("  ·  "),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+
+                Countdown(due, today, Modifier.padding(Spacing.p6, Spacing.p5, Spacing.p6, 0.dp))
+
+                SizeBand(
+                    info = vm.weeks[week],
+                    maxCm = vm.weeks.maxLengthCm,
+                    onOpenWeek = { sheetWeek = week },
+                    onEveryWeek = onEveryWeek,
+                    modifier = Modifier.padding(top = Spacing.p5),
                 )
+
+                Text(
+                    info.blurb,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(horizontal = Spacing.p6).padding(top = Spacing.p5),
+                )
+
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Spacing.p6)
+                        .padding(top = Spacing.p4),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.p2),
+                ) {
+                    QuietAction("Count kicks", Modifier.weight(1f), onCountKicks)
+                    QuietAction("Add note", Modifier.weight(1f)) { adding = LogTab.Notes }
+                    QuietAction("Weight", Modifier.weight(1f)) { adding = LogTab.Weight }
+                }
+
+                Next(state, vm, due, today, Modifier.padding(horizontal = Spacing.p6))
             }
 
-            Countdown(due, today, Modifier.padding(Spacing.p6, Spacing.p5, Spacing.p6, 0.dp))
-
-            SizeBand(
-                info = vm.weeks[week],
-                maxCm = vm.weeks.maxLengthCm,
-                onOpenWeek = { sheetWeek = week },
-                onEveryWeek = onEveryWeek,
-                modifier = Modifier.padding(top = Spacing.p5),
-            )
-
-            Text(
-                info.blurb,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(horizontal = Spacing.p6).padding(top = Spacing.p5),
-            )
-
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Spacing.p6)
-                    .padding(top = Spacing.p4),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.p2),
-            ) {
-                QuietAction("Count kicks", Modifier.weight(1f), onCountKicks)
-                QuietAction("Add note", Modifier.weight(1f)) { adding = LogTab.Notes }
-                QuietAction("Weight", Modifier.weight(1f)) { adding = LogTab.Weight }
-            }
-
-            Next(state, vm, due, today, Modifier.padding(horizontal = Spacing.p6))
 
             SyncStatusRow(
                 status = syncStatus,
@@ -255,6 +262,34 @@ private fun Countdown(due: LocalDate, today: LocalDate, modifier: Modifier = Mod
         ) {
             MicroLabel("${(progress * 100).roundToInt()}% through")
             MicroLabel("Week ${Pregnancy.WEEKS_AT_TERM}")
+        }
+    }
+}
+
+/**
+ * Today once the pregnancy view has ended: the birth, frozen where it happened, or a
+ * pause that explains nothing and asks nothing. Neither shows a countdown or a size.
+ */
+@Composable
+private fun Ended(state: AppState, due: LocalDate, modifier: Modifier = Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(Spacing.p2)) {
+        val born = state.bornOn
+        if (born != null && !state.paused) {
+            MicroLabel("Born")
+            Text(born.format(BornOn), style = MaterialTheme.typography.headlineMedium)
+            Text(
+                "At ${Pregnancy.week(due, born)}+${Pregnancy.dayOfWeek(due, born)} weeks",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        } else {
+            Text("Tracking is paused", style = MaterialTheme.typography.titleLarge)
+            Text(
+                "The countdown and weekly size are hidden on both phones. Everything you " +
+                    "have logged is kept. Turn it back on in Settings.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

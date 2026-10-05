@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.finn.bump.data.measuredOn
 import com.finn.bump.domain.Pregnancy
 import com.finn.bump.ui.components.Rule
 import com.finn.bump.ui.screens.JourneyScreen
@@ -90,7 +91,7 @@ fun BumpApp(vm: BumpViewModel) {
         Overlay.SizeChart -> {
             SizeChartScreen(
                 weeks = vm.weeks,
-                currentWeek = Pregnancy.week(current.dueDate!!, LocalDate.now()),
+                currentWeek = Pregnancy.week(current.dueDate!!, current.measuredOn(LocalDate.now())),
                 dueDate = current.dueDate!!,
                 photos = current.photos,
                 onBack = { overlayName = null },

@@ -32,6 +32,7 @@ import androidx.glance.unit.ColorProvider
 import com.finn.bump.MainActivity
 import com.finn.bump.R
 import com.finn.bump.data.Bump
+import com.finn.bump.data.displayName
 import com.finn.bump.domain.Pregnancy
 import com.finn.bump.ui.components.weekMark
 import kotlinx.coroutines.flow.first
@@ -76,6 +77,41 @@ class BumpWidget : GlanceAppWidget() {
                                 color = GlanceTheme.colors.onSurface,
                                 fontWeight = FontWeight.Bold,
                             ),
+                        )
+                        return@Column
+                    }
+
+                    // Paused says nothing about why, and nothing about the pregnancy.
+                    if (state.paused) {
+                        Text(
+                            "Bump",
+                            style = TextStyle(
+                                color = GlanceTheme.colors.onSurfaceVariant,
+                                fontFamily = FontFamily.Serif,
+                                fontSize = 17.sp,
+                            ),
+                        )
+                        return@Column
+                    }
+
+                    state.bornOn?.let { born ->
+                        Text(
+                            state.displayName,
+                            style = TextStyle(
+                                color = GlanceTheme.colors.onSurface,
+                                fontFamily = FontFamily.Serif,
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Medium,
+                            ),
+                        )
+                        Text(
+                            "Born ${born.format(java.time.format.DateTimeFormatter.ofPattern("d MMM yyyy"))}" +
+                                " · ${Pregnancy.week(due, born)}+${Pregnancy.dayOfWeek(due, born)}",
+                            style = TextStyle(
+                                color = GlanceTheme.colors.onSurfaceVariant,
+                                fontSize = 12.sp,
+                            ),
+                            modifier = GlanceModifier.padding(top = 4.dp),
                         )
                         return@Column
                     }

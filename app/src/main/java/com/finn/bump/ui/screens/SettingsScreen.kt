@@ -39,12 +39,14 @@ import com.finn.bump.data.AppState
 import com.finn.bump.data.sync.SyncStatus
 import com.finn.bump.ui.BumpViewModel
 import com.finn.bump.ui.components.BackRow
+import com.finn.bump.ui.components.DatePickerSheet
 import com.finn.bump.ui.components.Dot
 import com.finn.bump.ui.components.MicroLabel
 import com.finn.bump.ui.components.Rule
 import com.finn.bump.ui.components.syncStatusWords
 import com.finn.bump.ui.theme.LocalBumpExtras
 import com.finn.bump.ui.theme.Spacing
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -66,6 +68,7 @@ fun SettingsScreen(
 ) {
     var pairingEntry by remember { mutableStateOf<SharingEntry?>(null) }
     var editingBaby by remember { mutableStateOf(false) }
+    var pickingBirth by remember { mutableStateOf(false) }
 
     BackHandler(enabled = pairingEntry == null, onBack = onBack)
 
@@ -111,7 +114,23 @@ fun SettingsScreen(
                 SettingRow("Name", state.babyName.ifBlank { "Not decided" }) {
                     editingBaby = true
                 }
-                SettingRow("Sex", state.babySex.label, last = true) { editingBaby = true }
+                SettingRow("Sex", state.babySex.label) { editingBaby = true }
+                SettingRow("Baby arrived", state.bornOn?.format(DueDate) ?: "Not yet") {
+                    pickingBirth = true
+                }
+                if (state.bornOn != null) {
+                    TextAction("Clear the birth date") { vm.setBornOn(null) }
+                    Rule()
+                }
+                SettingRow("Pause tracking", if (state.paused) "Paused" else "Off", last = true) {
+                    vm.setPaused(!state.paused)
+                }
+                Text(
+                    "Hides the countdown and weekly size on both phones. Nothing is deleted.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+
             }
 
             Advanced(
@@ -125,6 +144,31 @@ fun SettingsScreen(
     if (editingBaby) {
         BabyDetailsSheet(state = state, vm = vm, onDismiss = { editingBaby = false })
     }
+    if (pickingBirth) {
+        DatePickerSheet(
+            title = "Baby arrived",
+            initial = state.bornOn ?: LocalDate.now(),
+            helper = "Ends the countdown on both phones. You can clear it in Settings.",
+            selectableUpToToday = true,
+            onDismiss = { pickingBirth = false },
+            onPicked = {
+                vm.setBornOn(it)
+                pickingBirth = false
+            },
+        )
+    }
+}
+
+@Composable
+private fun TextAction(label: String, onClick: () -> Unit) {
+    Text(
+        label,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .padding(vertical = Spacing.p3),
+    )
 }
 
 /** 4d and 4e: the same block, before and after pairing. */

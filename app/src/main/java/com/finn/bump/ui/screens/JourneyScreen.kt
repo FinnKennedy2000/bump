@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.finn.bump.data.measuredOn
 import com.finn.bump.data.AppState
 import com.finn.bump.domain.MilestoneKind
 import com.finn.bump.domain.MilestoneWindow
@@ -86,7 +87,7 @@ fun JourneyScreen(
 ) {
     val due = state.dueDate ?: return
     val today = LocalDate.now()
-    val currentWeek = Pregnancy.week(due, today)
+    val currentWeek = Pregnancy.week(due, state.measuredOn(today))
     var view by remember { mutableStateOf(View.Timeline) }
     var sheetWeek by remember { mutableStateOf<Int?>(null) }
     var prefill by remember { mutableStateOf<Prefill?>(null) }

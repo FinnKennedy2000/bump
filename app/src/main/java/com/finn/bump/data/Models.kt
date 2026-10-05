@@ -112,7 +112,12 @@ data class Photo(
  * itself (week, trimester, countdown, progress) is a pure function of it. A null due
  * date is the app's only state machine: null means show onboarding.
  *
- * [detailsUpdatedAt] stamps the four fields above it as one group. They are not [Logged]
+ * [bornOn] and [paused] are the two ways the pregnancy view ends. [bornOn] stops the
+ * clock on the day the baby arrived. [paused] is deliberately unexplained: it quietly
+ * hides the countdown and weekly size on both phones, for whatever reason that is wanted,
+ * and loses nothing.
+ *
+ * [detailsUpdatedAt] stamps the fields above it as one group. They are not [Logged]
  * items and have no id, so sync cannot merge them field by field; the phone that edited
  * the details most recently wins all four. That is the honest model anyway — they are
  * edited together, on one sheet, as one decision.
@@ -123,6 +128,8 @@ data class AppState(
     val babyName: String = "",
     val babyNickname: String = "",
     val babySex: BabySex = BabySex.UNKNOWN,
+    val bornOn: Iso8601Date? = null,
+    val paused: Boolean = false,
     val detailsUpdatedAt: Long = 0L,
     val appointments: List<Appointment> = emptyList(),
     val weights: List<WeightEntry> = emptyList(),
@@ -130,6 +137,12 @@ data class AppState(
     val kickSessions: List<KickSession> = emptyList(),
     val photos: List<Photo> = emptyList(),
 )
+
+/**
+ * The date the pregnancy is measured at: today, or the birth date once there is one, so
+ * week and size freeze where they ended rather than counting on as "overdue".
+ */
+fun AppState.measuredOn(today: LocalDate): LocalDate = bornOn ?: today
 
 /** The name, the bump name, or nothing yet — in that order. */
 val AppState.displayName: String get() = when {

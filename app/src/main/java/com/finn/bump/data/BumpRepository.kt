@@ -104,6 +104,13 @@ class BumpRepository(private val store: DataStore<AppState>) {
         )
     }
 
+    /** Null clears it — a mistaken tap is undone the same way it was made. */
+    suspend fun setBornOn(date: Iso8601Date?) =
+        update { it.copy(bornOn = date, detailsUpdatedAt = System.currentTimeMillis()) }
+
+    suspend fun setPaused(paused: Boolean) =
+        update { it.copy(paused = paused, detailsUpdatedAt = System.currentTimeMillis()) }
+
     suspend fun addAppointment(appointment: Appointment) =
         update { it.copy(appointments = it.appointments + appointment) }
 

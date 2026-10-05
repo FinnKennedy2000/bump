@@ -26,12 +26,9 @@ fun merge(local: AppState, remote: AppState): AppState {
     // deterministic rather than dependent on which side was fetched first.
     val details = if (remote.detailsUpdatedAt > local.detailsUpdatedAt) remote else local
 
-    return AppState(
-        dueDate = details.dueDate,
-        babyName = details.babyName,
-        babyNickname = details.babyNickname,
-        babySex = details.babySex,
-        detailsUpdatedAt = details.detailsUpdatedAt,
+    // Copying the winner, rather than listing its fields, means a detail added later
+    // travels with the group without anyone remembering to add it here.
+    return details.copy(
         appointments = mergeItems(local.appointments, remote.appointments),
         weights = mergeItems(local.weights, remote.weights),
         notes = mergeItems(local.notes, remote.notes),

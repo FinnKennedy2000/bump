@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.finn.bump.data.measuredOn
 import com.finn.bump.data.AppState
 import com.finn.bump.data.Appointment
 import com.finn.bump.data.KickSession
@@ -510,4 +511,4 @@ private fun Entry(
 
 /** The week a note belongs to, so notes read back in pregnancy order rather than calendar order. */
 internal fun currentWeek(state: AppState): Int =
-    state.dueDate?.let { Pregnancy.week(it, LocalDate.now()) } ?: 0
+    state.dueDate?.let { Pregnancy.week(it, state.measuredOn(LocalDate.now())) } ?: 0

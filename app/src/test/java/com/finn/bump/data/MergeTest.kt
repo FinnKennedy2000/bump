@@ -194,4 +194,23 @@ class MergeTest {
         assertEquals(8, sampleSize(2048, 200))
         assertEquals(1, sampleSize(100, 2048))
     }
+
+    @Test
+    fun `the birth date and pause travel with the details group`() {
+        val mine = AppState(babyName = "Bean", detailsUpdatedAt = 100)
+        val theirs = AppState(babyName = "Bean", bornOn = LocalDate.of(2027, 1, 3), paused = true, detailsUpdatedAt = 200)
+
+        val merged = merge(mine, theirs)
+        assertEquals(LocalDate.of(2027, 1, 3), merged.bornOn)
+        assertTrue(merged.paused)
+        // and an older copy cannot undo them
+        assertEquals(merged, merge(merged, mine))
+    }
+
+    @Test
+    fun `the pregnancy is measured on the birth date once there is one`() {
+        val today = LocalDate.of(2027, 1, 20)
+        assertEquals(today, AppState().measuredOn(today))
+        assertEquals(LocalDate.of(2027, 1, 3), AppState(bornOn = LocalDate.of(2027, 1, 3)).measuredOn(today))
+    }
 }
