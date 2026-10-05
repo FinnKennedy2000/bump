@@ -41,7 +41,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.finn.bump.data.ChecklistItem
 import com.finn.bump.data.Contact
+import com.finn.bump.data.Contraction
 import com.finn.bump.data.measuredOn
 import com.finn.bump.data.AppState
 import com.finn.bump.data.Appointment
@@ -480,8 +482,8 @@ private fun Entry(
                     )
                 }
 
-                // Contacts live on Today and in Settings, never in the log.
-                is Contact -> Unit
+                // These have screens of their own and never enter the log's list.
+                is Contact, is Contraction, is ChecklistItem -> Unit
 
 
                 is Photo -> Row(

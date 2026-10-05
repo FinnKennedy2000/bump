@@ -82,6 +82,8 @@ fun TodayScreen(
     state: AppState,
     vm: BumpViewModel,
     onCountKicks: () -> Unit,
+    onContractions: () -> Unit,
+    onBag: () -> Unit,
     onEveryWeek: () -> Unit,
     onSettings: () -> Unit,
     modifier: Modifier = Modifier,
@@ -185,6 +187,8 @@ fun TodayScreen(
                     horizontalArrangement = Arrangement.spacedBy(Spacing.p2),
                 ) {
                     QuietAction("Count kicks", Modifier.weight(1f), onCountKicks)
+                    QuietAction("Contractions", Modifier.weight(1f), onContractions)
+                    QuietAction("Hospital bag", Modifier.weight(1f), onBag)
                 }
                 Row(
                     Modifier
@@ -195,18 +199,7 @@ fun TodayScreen(
                 ) {
                     QuietAction("Add note", Modifier.weight(1f)) { adding = LogTab.Notes }
                     QuietAction("Weight", Modifier.weight(1f)) { adding = LogTab.Weight }
-                }
-
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = Spacing.p6)
-                        .padding(top = Spacing.p4),
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.p2),
-                ) {
-                    QuietAction("Count kicks", Modifier.weight(1f), onCountKicks)
-                    QuietAction("Add note", Modifier.weight(1f)) { adding = LogTab.Notes }
-                    QuietAction("Weight", Modifier.weight(1f)) { adding = LogTab.Weight }
+                    QuietAction("Photo", Modifier.weight(1f)) { adding = LogTab.Photos }
                 }
 
                 Next(state, vm, due, today, Modifier.padding(horizontal = Spacing.p6))

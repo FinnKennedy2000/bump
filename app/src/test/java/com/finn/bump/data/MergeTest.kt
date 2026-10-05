@@ -125,6 +125,8 @@ class MergeTest {
             kickSessions = listOf(KickSession(id = "k", startedAtMillis = 1, durationMillis = 2, kicks = 3, updatedAt = 100)),
             photos = listOf(Photo(id = "p", date = LocalDate.of(2026, 1, 1), caption = "mine", blob = "b1", updatedAt = 100)),
             contacts = listOf(Contact(id = "c1", label = "Midwife", number = "1", updatedAt = 100)),
+            contractions = listOf(Contraction(id = "x1", startedAtMillis = 1, durationMillis = 40_000, updatedAt = 100)),
+            checklist = listOf(ChecklistItem(id = "bag", text = "Snacks", updatedAt = 100)),
         )
         val theirs = AppState(
             appointments = listOf(Appointment(id = "ap", title = "theirs", atMillis = 1, updatedAt = 200)),
@@ -132,6 +134,8 @@ class MergeTest {
             kickSessions = listOf(KickSession(id = "k", startedAtMillis = 1, durationMillis = 2, kicks = 9, updatedAt = 200)),
             photos = listOf(Photo(id = "p", date = LocalDate.of(2026, 1, 1), caption = "theirs", blob = "b1", updatedAt = 200)),
             contacts = listOf(Contact(id = "c2", label = "Triage", number = "2", updatedAt = 100)),
+            contractions = listOf(Contraction(id = "x2", startedAtMillis = 2, durationMillis = 50_000, updatedAt = 100)),
+            checklist = listOf(ChecklistItem(id = "bag", text = "Snacks", done = true, updatedAt = 200)),
         )
 
         val merged = merge(mine, theirs)
@@ -141,6 +145,8 @@ class MergeTest {
         assertEquals(2, merged.weights.size)
         assertEquals(9, merged.kickSessions.single().kicks)
         assertEquals(2, merged.contacts.size)
+        assertEquals(2, merged.contractions.size)
+        assertTrue("the later tick wins", merged.checklist.single().done)
     }
 
     @Test

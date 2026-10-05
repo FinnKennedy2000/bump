@@ -37,6 +37,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.finn.bump.data.measuredOn
 import com.finn.bump.domain.Pregnancy
 import com.finn.bump.ui.components.Rule
+import com.finn.bump.ui.screens.ChecklistScreen
+import com.finn.bump.ui.screens.ContractionsScreen
 import com.finn.bump.ui.screens.JourneyScreen
 import com.finn.bump.ui.screens.KicksScreen
 import com.finn.bump.ui.screens.LogScreen
@@ -60,7 +62,7 @@ private enum class Tab(val label: String, val icon: ImageVector) {
 }
 
 /** A screen that covers the tabs while it is open. */
-private enum class Overlay { Kicks, SizeChart, Settings }
+private enum class Overlay { Kicks, Contractions, Checklist, SizeChart, Settings }
 
 @Composable
 fun BumpApp(vm: BumpViewModel) {
@@ -85,6 +87,16 @@ fun BumpApp(vm: BumpViewModel) {
     when (overlay) {
         Overlay.Kicks -> {
             KicksScreen(current, vm, onClose = { overlayName = null })
+            return
+        }
+
+        Overlay.Contractions -> {
+            ContractionsScreen(current, vm, onClose = { overlayName = null })
+            return
+        }
+
+        Overlay.Checklist -> {
+            ChecklistScreen(current, vm, onClose = { overlayName = null })
             return
         }
 
@@ -118,6 +130,8 @@ fun BumpApp(vm: BumpViewModel) {
                 state = current,
                 vm = vm,
                 onCountKicks = { overlayName = Overlay.Kicks.name },
+                onContractions = { overlayName = Overlay.Contractions.name },
+                onBag = { overlayName = Overlay.Checklist.name },
                 onEveryWeek = { overlayName = Overlay.SizeChart.name },
                 onSettings = { overlayName = Overlay.Settings.name },
                 modifier = modifier,

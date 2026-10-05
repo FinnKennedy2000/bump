@@ -103,6 +103,29 @@ data class Photo(
 ) : Logged
 
 /**
+ * One timed contraction, saved the moment it ends so a long night of them is never one
+ * unsaved session — and so the other phone sees them as they happen.
+ */
+@Serializable
+data class Contraction(
+    override val id: String = newId(),
+    val startedAtMillis: Long,
+    val durationMillis: Long,
+    override val updatedAt: Long = System.currentTimeMillis(),
+    override val deleted: Boolean = false,
+) : Logged
+
+/** A line on the shared hospital-bag list. Ticking it is an edit, so it refreshes [updatedAt]. */
+@Serializable
+data class ChecklistItem(
+    override val id: String = newId(),
+    val text: String,
+    val done: Boolean = false,
+    override val updatedAt: Long = System.currentTimeMillis(),
+    override val deleted: Boolean = false,
+) : Logged
+
+/**
  * Someone to ring — the triage line, the midwife, the labour ward — entered by the two of
  * you. Stored as typed: the app dials what is here and never decides who you should call.
  */
@@ -150,6 +173,8 @@ data class AppState(
     val kickSessions: List<KickSession> = emptyList(),
     val photos: List<Photo> = emptyList(),
     val contacts: List<Contact> = emptyList(),
+    val contractions: List<Contraction> = emptyList(),
+    val checklist: List<ChecklistItem> = emptyList(),
 )
 
 /**

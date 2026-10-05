@@ -5,8 +5,17 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-/** One logged thing placed on the calendar, ready to be set on a page. */
-data class Moment(val date: LocalDate, val sortMillis: Long, val item: Logged)
+/**
+ * One logged thing placed on the calendar, ready to be set on a page. A day of timed
+ * contractions is one moment — a night of forty is one event, not forty lines — with
+ * the first as [item] and the whole day in [contractions].
+ */
+data class Moment(
+    val date: LocalDate,
+    val sortMillis: Long,
+    val item: Logged,
+    val contractions: List<Contraction> = emptyList(),
+)
 
 /**
  * A run of moments under one heading: a gestational [week], or `null` for everything
@@ -37,6 +46,10 @@ fun keepsakeChapters(state: AppState, zone: ZoneId = ZoneId.systemDefault()): Li
         live.notes.forEach { add(Moment(day(it.createdAtMillis), it.createdAtMillis, it)) }
         live.kickSessions.forEach { add(Moment(day(it.startedAtMillis), it.startedAtMillis, it)) }
         live.photos.forEach { add(Moment(it.date, startOf(it.date), it)) }
+        live.contractions.groupBy { day(it.startedAtMillis) }.forEach { (date, day) ->
+            val sorted = day.sortedBy { it.startedAtMillis }
+            add(Moment(date, sorted.first().startedAtMillis, sorted.first(), sorted))
+        }
     }
 
     fun weekOf(m: Moment): Int? = when {

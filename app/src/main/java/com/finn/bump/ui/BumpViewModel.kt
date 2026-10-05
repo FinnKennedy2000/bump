@@ -10,7 +10,9 @@ import androidx.lifecycle.viewModelScope
 import com.finn.bump.data.Appointment
 import com.finn.bump.data.AppState
 import com.finn.bump.data.BabySex
+import com.finn.bump.data.ChecklistItem
 import com.finn.bump.data.Contact
+import com.finn.bump.data.Contraction
 import com.finn.bump.data.writeExport
 import com.finn.bump.data.Bump
 import com.finn.bump.data.KickSession
@@ -116,6 +118,46 @@ class BumpViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun addContact(c: Contact) = launch { repo.addContact(c) }
+
+    /**
+     * The contraction being timed right now, if any. Held here rather than in the screen so
+     * closing the timer by reflex mid-contraction — to check the bag list, say — does not
+     * throw it away.
+     *
+     * ponytail: lives as long as the process. If the system kills the app mid-contraction
+     * that one is lost; persist it locally (not in the synced record) if that ever bites.
+     */
+    private val _contractionStartedAt = MutableStateFlow(0L)
+    val contractionStartedAt: StateFlow<Long> = _contractionStartedAt
+
+    /** The one this phone saved last — the only one "remove" may touch, never a synced one. */
+    private val _lastTimed = MutableStateFlow<Contraction?>(null)
+    val lastTimed: StateFlow<Contraction?> = _lastTimed
+
+    fun startContraction() {
+        _contractionStartedAt.value = System.currentTimeMillis()
+    }
+
+    fun cancelContraction() {
+        _contractionStartedAt.value = 0L
+    }
+
+    fun endContraction() {
+        val started = _contractionStartedAt.value
+        if (started == 0L) return
+        val c = Contraction(startedAtMillis = started, durationMillis = System.currentTimeMillis() - started)
+        _contractionStartedAt.value = 0L
+        _lastTimed.value = c
+        launch { repo.addContraction(c) }
+    }
+
+    fun removeLastTimed() {
+        val c = _lastTimed.value ?: return
+        _lastTimed.value = null
+        delete(c)
+    }
+    fun addChecklistItem(item: ChecklistItem) = launch { repo.addChecklistItem(item) }
+    fun setChecked(item: ChecklistItem, done: Boolean) = launch { repo.setChecked(item.id, done) }
 
     /**
      * What the last export said, held here rather than in the screen so a rotation or an

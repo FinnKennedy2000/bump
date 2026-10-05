@@ -115,6 +115,17 @@ class BumpRepository(private val store: DataStore<AppState>) {
         it.copy(contacts = it.contacts + contact.copy(label = contact.label.trim(), number = contact.number.trim()))
     }
 
+    suspend fun addContraction(c: Contraction) =
+        update { it.copy(contractions = it.contractions + c) }
+
+    suspend fun addChecklistItem(item: ChecklistItem) =
+        update { it.copy(checklist = it.checklist + item.copy(text = item.text.trim())) }
+
+    suspend fun setChecked(id: String, done: Boolean) = update { s ->
+        val now = System.currentTimeMillis()
+        s.copy(checklist = s.checklist.map { if (it.id == id) it.copy(done = done, updatedAt = now) else it })
+    }
+
     suspend fun addAppointment(appointment: Appointment) =
         update { it.copy(appointments = it.appointments + appointment) }
 
@@ -170,6 +181,12 @@ class BumpRepository(private val store: DataStore<AppState>) {
                     if (it.id == item.id) it.copy(deleted = deleted, updatedAt = now) else it
                 })
                 is Contact -> s.copy(contacts = s.contacts.map {
+                    if (it.id == item.id) it.copy(deleted = deleted, updatedAt = now) else it
+                })
+                is Contraction -> s.copy(contractions = s.contractions.map {
+                    if (it.id == item.id) it.copy(deleted = deleted, updatedAt = now) else it
+                })
+                is ChecklistItem -> s.copy(checklist = s.checklist.map {
                     if (it.id == item.id) it.copy(deleted = deleted, updatedAt = now) else it
                 })
             }

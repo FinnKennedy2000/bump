@@ -20,7 +20,9 @@ import com.finn.bump.R
 import com.finn.bump.data.Appointment
 import com.finn.bump.data.AppState
 import com.finn.bump.data.Chapter
+import com.finn.bump.data.ChecklistItem
 import com.finn.bump.data.Contact
+import com.finn.bump.data.Contraction
 import com.finn.bump.data.KickSession
 import com.finn.bump.data.Moment
 import com.finn.bump.data.Note
@@ -31,6 +33,7 @@ import com.finn.bump.data.displayName
 import com.finn.bump.data.keepsakeChapters
 import com.finn.bump.data.measuredOn
 import com.finn.bump.data.withoutTombstones
+import com.finn.bump.domain.Contractions
 import com.finn.bump.domain.Pregnancy
 import com.finn.bump.domain.WeekTable
 import com.finn.bump.ui.components.weekMark
@@ -373,8 +376,9 @@ class KeepsakePdf(context: Context, private val weeks: WeekTable, private val ph
             is WeightEntry -> Triple("Weight", Palette.Moss.toArgb(), Palette.Moss.toArgb())
             is KickSession -> Triple("Kick count", Palette.Ochre.toArgb(), Palette.OchreText.toArgb())
             is Photo -> Triple("Photo", Palette.Rose.toArgb(), Palette.Rose.toArgb())
-            // Contacts are listed with the facts, not placed on the timeline.
-            is Contact -> error("contacts are not timeline moments")
+            is Contraction -> Triple("Contractions", Palette.Ochre.toArgb(), Palette.OchreText.toArgb())
+            // Contacts are listed with the facts; the bag list stays in the data export.
+            is Contact, is ChecklistItem -> error("not a timeline moment")
         }
         val dateText = when (item) {
             is Appointment -> Instant.ofEpochMilli(item.atMillis).atZone(zone).format(DATE_TIME)
@@ -392,7 +396,8 @@ class KeepsakePdf(context: Context, private val weeks: WeekTable, private val ph
             is KickSession ->
                 textParts("${count(item.kicks, "kick")} in ${minutes(item.durationMillis)}", text(sansMedium, 10.5f, ink))
             is Photo -> photoParts(item)
-            is Contact -> emptyList()
+            is Contraction -> contractionParts(m.contractions)
+            is Contact, is ChecklistItem -> emptyList()
         }
 
         // Pack the parts into page-sized blocks; the first carries the date and the dot.
@@ -422,6 +427,28 @@ class KeepsakePdf(context: Context, private val weeks: WeekTable, private val ph
                 }
             }
         }
+    }
+
+    /** A day of contractions as two plain lines: how many and when, then how long and how far apart. */
+    private fun contractionParts(day: List<Contraction>): List<Part> {
+        val zone = ZoneId.systemDefault()
+        fun at(ms: Long) = Instant.ofEpochMilli(ms).atZone(zone).format(CLOCK)
+        val pairs = day.map { it.startedAtMillis to it.durationMillis }
+        val headline = if (day.size == 1) {
+            "1 contraction timed, at ${at(day.first().startedAtMillis)}"
+        } else {
+            "${day.size} contractions timed, ${at(day.first().startedAtMillis)} to ${at(day.last().startedAtMillis)}"
+        }
+        // The last hour of timing, measured back from the last one timed that day.
+        val s = Contractions.summary(pairs, now = day.last().startedAtMillis)
+        val detail = s?.let {
+            listOfNotNull(
+                "lasting about ${seconds(it.averageDurationMillis)}",
+                it.averageGapMillis?.let { g -> "about ${seconds(g)} apart" },
+            ).joinToString(", ").replaceFirstChar { c -> c.uppercase() } + " in the last hour timed."
+        }
+        return textParts(headline, text(sansMedium, 10.5f, ink)) +
+            detail?.let { textParts(it, text(sans, 9.5f, muted), gap = 2f) }.orEmpty()
     }
 
     private class Part(val height: Float, val draw: (Canvas, Float) -> Unit)
@@ -591,6 +618,14 @@ class KeepsakePdf(context: Context, private val weeks: WeekTable, private val ph
         val DAY_MONTH: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM", Locale.UK)
         val DATE: DateTimeFormatter = DateTimeFormatter.ofPattern("EEEE d MMMM", Locale.UK)
         val DATE_TIME: DateTimeFormatter = DateTimeFormatter.ofPattern("EEEE d MMMM, HH:mm", Locale.UK)
+
+        val CLOCK: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.UK)
+
+        /** "45 seconds", "4 min 10 s" — a length a person says out loud. */
+        fun seconds(ms: Long): String {
+            val s = (ms / 1000).toInt()
+            return if (s < 60) "$s seconds" else if (s % 60 == 0) "${s / 60} min" else "${s / 60} min ${s % 60} s"
+        }
 
         fun kg(v: Double) = "%.1f kg".format(Locale.UK, v)
         fun count(n: Int, noun: String) = if (n == 1) "1 $noun" else "$n ${noun}s"
