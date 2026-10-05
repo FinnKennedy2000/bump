@@ -8,7 +8,7 @@
         android:pathData="M10.5,21 a9.5,9.5 0 1,0 19,0 a9.5,9.5 0 1,0 -19,0 Z"
         android:fillColor="#CBD9A0" />
     <path
-        android:pathData="M20 11.5a9.5 9.5 0 000 19z"
+        android:pathData="M20 11.5a9.5 9.5 0 0 0 0 19z"
         android:fillColor="#DCE7BC" />
     <path
         android:pathData="M20 11.5v19"

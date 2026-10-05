@@ -60,6 +60,26 @@ class WeeksJsonTest {
     }
 
     @Test
+    fun `every arc in every mark spells out its flags`() {
+        // Compose's parser accepts SVG's packed arc flags ("0 0111.5" for "0 0 1 11.5");
+        // the framework's VectorDrawable parser, used by the widget and the keepsake PDF,
+        // throws on them. So every arc must have whole multiples of seven numbers.
+        val number = Regex("""-?(\d+\.?\d*|\.\d+)""")
+        val pathData = Regex("""android:pathData="([^"]*)"""")
+        val arc = Regex("""[Aa]([^A-Za-z]*)""")
+        val bad = listOf("drawable", "drawable-night").flatMap { dir ->
+            File("src/main/res/$dir").listFiles { f -> f.name.startsWith("week_") }.orEmpty().flatMap { f ->
+                pathData.findAll(f.readText())
+                    .flatMap { arc.findAll(it.groupValues[1]) }
+                    .filter { number.findAll(it.groupValues[1]).count() % 7 != 0 }
+                    .map { "$dir/${f.name}: ${it.value.trim()}" }
+                    .toList()
+            }
+        }
+        assertTrue("packed arc flags in: $bad", bad.isEmpty())
+    }
+
+    @Test
     fun `measured weeks and max length back the size chart`() {
         val table = WeekTable(weeks)
         // Weeks 0-2 have no measurement and must not reach the size chart.
