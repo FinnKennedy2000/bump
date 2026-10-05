@@ -17,7 +17,7 @@ import com.finn.bump.R
  * Weeks outside 3..40 clamp to the ends: before week 3 there is nothing to draw, and the
  * table itself clamps at 40.
  *
- * Nineteen of the marks lean on near-black or deep fills that fall under 3:1 on the dark
+ * Sixteen of the marks lean on near-black or deep fills that fall under 3:1 on the dark
  * card, so those have a `drawable-night/` variant with each offending colour lifted along
  * its own hue. The rest are light enough to serve both themes from one file.
  */

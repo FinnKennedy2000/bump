@@ -71,7 +71,7 @@
   },
   {
     "week": 10,
-    "size": "Kumquat",
+    "size": "Strawberry",
     "lengthCm": 3.1,
     "weightG": 4,
     "blurb": "Vital organs are in place and starting to work. Nails begin forming and bones are hardening."
@@ -92,7 +92,7 @@
   },
   {
     "week": 13,
-    "size": "Pea pod",
+    "size": "Peach",
     "lengthCm": 7.4,
     "weightG": 23,
     "blurb": "Start of the second trimester. Vocal cords are forming and fingerprints have appeared."
@@ -120,7 +120,7 @@
   },
   {
     "week": 17,
-    "size": "Turnip",
+    "size": "Pear",
     "lengthCm": 13.0,
     "weightG": 140,
     "blurb": "Fat stores begin forming under the skin. The skeleton is shifting from cartilage to bone."
@@ -134,7 +134,7 @@
   },
   {
     "week": 19,
-    "size": "Heirloom tomato",
+    "size": "Mango",
     "lengthCm": 15.3,
     "weightG": 240,
     "blurb": "A waxy coating called vernix now protects the skin. The senses are developing rapidly."
@@ -176,14 +176,14 @@
   },
   {
     "week": 25,
-    "size": "Swede",
+    "size": "Broccoli",
     "lengthCm": 34.6,
     "weightG": 660,
     "blurb": "The baby is putting on fat steadily. Hair is growing and beginning to show colour and texture."
   },
   {
     "week": 26,
-    "size": "Spring onions",
+    "size": "Courgette",
     "lengthCm": 35.6,
     "weightG": 760,
     "blurb": "Eyes open for the first time. Lungs are practising breathing movements with amniotic fluid."
@@ -260,7 +260,7 @@
   },
   {
     "week": 37,
-    "size": "Chard",
+    "size": "Bunch of celery",
     "lengthCm": 48.6,
     "weightG": 2859,
     "blurb": "Early term. The baby practises breathing, sucking and blinking, getting ready for the outside."
