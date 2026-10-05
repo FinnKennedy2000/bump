@@ -135,6 +135,16 @@ class BumpViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** The printable keepsake: the whole record as a small illustrated book. */
+    fun makeKeepsake(uri: Uri) = saveTo(uri) { state, out ->
+        val app = getApplication<Application>()
+        when (val unplaced = KeepsakePdf(app, weeks, Bump.photoFiles(app)).write(state, out)) {
+            0 -> "Keepsake saved."
+            1 -> "Keepsake saved, without 1 photo that isn't on this phone yet."
+            else -> "Keepsake saved, without $unplaced photos that aren't on this phone yet."
+        }
+    }
+
     /**
      * Write to a document the save sheet created, reporting through [exportResult]. The
      * sheet makes the file before anything is written, so a failure removes it: a

@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.finn.bump.data.AppState
 import com.finn.bump.data.Contact
+import com.finn.bump.data.displayName
 import com.finn.bump.data.sync.SyncStatus
 import com.finn.bump.ui.BumpViewModel
 import com.finn.bump.ui.components.BackRow
@@ -80,6 +81,9 @@ fun SettingsScreen(
     val exportTo = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/zip")
     ) { uri -> if (uri != null) vm.export(uri) }
+    val keepsakeTo = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/pdf")
+    ) { uri -> if (uri != null) vm.makeKeepsake(uri) }
 
     BackHandler(enabled = pairingEntry == null, onBack = onBack)
 
@@ -146,11 +150,18 @@ fun SettingsScreen(
             Contacts(state.contacts, onAdd = vm::addContact, onRemove = vm::delete)
 
             Section("Your record") {
+                // The book is laid out by week, which needs a due date to count from.
+                if (state.dueDate != null) {
+                    SettingRow("Keepsake book", "PDF") {
+                        keepsakeTo.launch("${state.displayName} - week by week.pdf")
+                    }
+                }
                 SettingRow("Export everything", "Zip", last = true) {
                     exportTo.launch("bump-${LocalDate.now()}.zip")
                 }
                 Text(
-                    exportResult ?: "Every entry and photo in one file you can keep anywhere.",
+                    exportResult ?: "The keepsake is the pregnancy week by week, to print or " +
+                        "keep. The zip is every entry and photo as data.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
