@@ -45,8 +45,13 @@ one record. Personal app, sideloaded, two users.
 
 No Hilt/Koin, no Navigation library, no Room, no chart library, no image loader (Coil).
 On the network side: no OkHttp/Ktor/Retrofit (a handful of endpoints do not need one), no
-WorkManager (sync runs on resume and after writes; the app has nothing to do in the
-background), no user accounts (two people who already trust each other share one code).
+WorkManager (sync runs on resume and after writes), no push service or Firebase, no user
+accounts (two people who already trust each other share one code).
+The one background job is `notify/NameNotifications.kt`: while paired, a platform
+JobScheduler job about every 15 minutes syncs and notifies about the partner's name
+votes. It stays blind — a match or a partner-typed name may be named, list likes are only
+counted — and it is cancelled on unpair. Anything else wanting background work joins it
+there rather than adding a second mechanism.
 Each was considered and rejected. Adding one back is a decision worth making explicitly, not a default.
 
 ## Style

@@ -23,6 +23,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -66,7 +67,7 @@ private enum class Tab(val label: String, val icon: ImageVector) {
 private enum class Overlay { Kicks, Contractions, Checklist, Names, SizeChart, Settings }
 
 @Composable
-fun BumpApp(vm: BumpViewModel) {
+fun BumpApp(vm: BumpViewModel, openNames: Boolean = false, onOpened: () -> Unit = {}) {
     val state by vm.state.collectAsStateWithLifecycle()
 
     // Null means the first DataStore read hasn't landed yet. Render nothing rather
@@ -82,6 +83,13 @@ fun BumpApp(vm: BumpViewModel) {
     // Saved by name: an enum is only Bundle-savable by accident, and losing the kick
     // counter to a rotation is exactly what this is here to prevent.
     var overlayName by rememberSaveable { mutableStateOf<String?>(null) }
+    // A tapped name notification lands here once, then hands back control.
+    LaunchedEffect(openNames) {
+        if (openNames) {
+            overlayName = Overlay.Names.name
+            onOpened()
+        }
+    }
     val overlay = overlayName?.let(Overlay::valueOf)
     val snackbar = remember { SnackbarHostState() }
 

@@ -1,6 +1,11 @@
 package com.finn.bump.ui.screens
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.VectorConverter
@@ -48,7 +53,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.core.content.ContextCompat
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
@@ -96,6 +103,19 @@ fun NamesScreen(
 ) {
     BackHandler(onBack = onClose)
     val me by vm.voter.collectAsStateWithLifecycle()
+    val paired = vm.pairing.collectAsStateWithLifecycle().value != null
+
+    // Seen on open and as new votes sync in while it is open, so nothing here is announced later.
+    LaunchedEffect(state.nameVotes) { vm.namesSeen() }
+
+    // Asked here, the first time it means something: paired, and looking at names.
+    val askNotify = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    val context = LocalContext.current
+    LaunchedEffect(paired) {
+        if (paired && Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) askNotify.launch(Manifest.permission.POST_NOTIFICATIONS)
+    }
     var tab by rememberSaveable { mutableStateOf(NamesTab.Discover) }
     var group by rememberSaveable {
         mutableStateOf(

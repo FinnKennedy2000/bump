@@ -15,6 +15,9 @@ import com.finn.bump.data.Contact
 import com.finn.bump.data.Contraction
 import com.finn.bump.data.NameVote
 import com.finn.bump.domain.NameGroup
+import com.finn.bump.notify.cancelNameChecks
+import com.finn.bump.notify.markNamesSeen
+import com.finn.bump.notify.scheduleNameChecks
 import com.finn.bump.domain.Verdict
 import com.finn.bump.data.writeExport
 import com.finn.bump.data.Bump
@@ -130,7 +133,15 @@ class BumpViewModel(app: Application) : AndroidViewModel(app) {
 
     init {
         viewModelScope.launch { _voter.value = syncSettings.voterId() }
+        // The background name check exists only while there is a partner to hear from.
+        viewModelScope.launch {
+            syncSettings.pairing.collect { if (it != null) scheduleNameChecks(app) else cancelNameChecks(app) }
+        }
     }
+
+    /** The names screen is open: everything on it counts as seen, and its notification goes. */
+    fun namesSeen() = viewModelScope.launch { markNamesSeen(getApplication()) }
+
     fun vote(name: String, group: NameGroup, verdict: Verdict) {
         val me = _voter.value ?: return
         launch { repo.vote(NameVote(NameVote.idFor(me, name.trim()), me, name.trim(), group, verdict)) }

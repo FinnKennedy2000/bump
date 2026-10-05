@@ -72,6 +72,36 @@ fun shortlist(votes: List<NameVote>, me: String): List<ShortlistEntry> =
 private val KEEN = setOf(Verdict.YES, Verdict.MAYBE)
 
 /**
+ * What the partner has done with names since [seenAt], worded for a notification that
+ * keeps their answers blind: a match or a name they typed in may be named, but their
+ * likes on list names are only counted — naming them would spoil the swipe.
+ */
+data class NameNews(
+    val matches: List<String>,
+    val suggested: List<String>,
+    val liked: Int,
+    /** The newest partner stamp seen; store it as the next [seenAt]. */
+    val newest: Long,
+) {
+    val isEmpty: Boolean get() = matches.isEmpty() && suggested.isEmpty() && liked == 0
+}
+
+fun nameNews(votes: List<NameVote>, me: String, known: Set<String>, seenAt: Long): NameNews {
+    val live = votes.filterNot { it.deleted }
+    val mine = live.filter { it.voter == me }.associateBy { it.name.lowercase() }
+    val fresh = live.filter { it.voter != me && it.updatedAt > seenAt && it.verdict in KEEN }
+    val matches = fresh.filter { it.verdict == Verdict.YES && mine[it.name.lowercase()]?.verdict == Verdict.YES }
+    val unjudged = fresh.filter { it.name.lowercase() !in mine }
+    val (suggested, liked) = unjudged.partition { it.name.lowercase() !in known }
+    return NameNews(
+        matches = matches.map { it.name }.distinct(),
+        suggested = suggested.map { it.name }.distinct(),
+        liked = liked.distinctBy { it.name.lowercase() }.size,
+        newest = (live.filter { it.voter != me }.maxOfOrNull { it.updatedAt } ?: seenAt).coerceAtLeast(seenAt),
+    )
+}
+
+/**
  * Names at least two different voters said yes to. For the keepsake, which belongs to
  * both of you and so has no "me" to measure from.
  */

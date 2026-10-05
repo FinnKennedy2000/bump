@@ -5,6 +5,7 @@ import android.util.Base64
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -23,6 +24,7 @@ private val KEY_BASE_URL = stringPreferencesKey("base_url")
 private val KEY_SPACE_ID = stringPreferencesKey("space_id")
 private val KEY_TOKEN = stringPreferencesKey("token")
 private val KEY_VOTER = stringPreferencesKey("voter_id")
+private val KEY_NAMES_SEEN = longPreferencesKey("names_seen_at")
 
 /** The deployed backend. Editable under Advanced in Settings so a redeploy is not a rebuild. */
 const val DEFAULT_BASE_URL = "https://bump-api-production-3acf.up.railway.app"
@@ -93,6 +95,16 @@ class SyncSettings(private val context: Context) {
             id = prefs[KEY_VOTER] ?: java.util.UUID.randomUUID().toString().also { prefs[KEY_VOTER] = it }
         }
         return id!!
+    }
+
+    /** The newest partner name vote this phone has already told you about, or shown you. */
+    val namesSeenAt: Flow<Long> = context.syncDataStore.data.map { it[KEY_NAMES_SEEN] ?: 0L }
+
+    suspend fun setNamesSeenAt(at: Long) {
+        context.syncDataStore.edit { prefs ->
+            // Only ever forward: a slow write must not re-announce what was already seen.
+            if (at > (prefs[KEY_NAMES_SEEN] ?: 0L)) prefs[KEY_NAMES_SEEN] = at
+        }
     }
 
     /** Unpair. The local document is untouched — leaving sync must never cost you data. */
