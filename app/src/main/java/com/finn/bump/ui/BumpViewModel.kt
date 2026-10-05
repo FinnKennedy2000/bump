@@ -2,13 +2,16 @@ package com.finn.bump.ui
 
 import android.app.Application
 import android.net.Uri
+import android.provider.DocumentsContract
 import android.util.Log
+import java.io.OutputStream
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.finn.bump.data.Appointment
 import com.finn.bump.data.AppState
 import com.finn.bump.data.BabySex
 import com.finn.bump.data.Contact
+import com.finn.bump.data.writeExport
 import com.finn.bump.data.Bump
 import com.finn.bump.data.KickSession
 import com.finn.bump.data.Logged
@@ -21,13 +24,16 @@ import com.finn.bump.data.sync.SyncStatus
 import com.finn.bump.data.sync.SyncSettings
 import com.finn.bump.domain.Pregnancy
 import com.finn.bump.widget.refreshBumpWidget
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 import java.time.LocalDate
 
@@ -110,6 +116,64 @@ class BumpViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun addContact(c: Contact) = launch { repo.addContact(c) }
+
+    /**
+     * What the last export said, held here rather than in the screen so a rotation or an
+     * activity recreated behind the save sheet cannot swallow it — in particular the
+     * "without N photos" warning, which is what keeps a short archive from being a silent one.
+     */
+    private val _exportResult = MutableStateFlow<String?>(null)
+    val exportResult: StateFlow<String?> = _exportResult
+
+    /** Write the export zip to the document the user picked in the system save sheet. */
+    fun export(uri: Uri) = saveTo(uri) { state, out ->
+        val missing = writeExport(state, Bump.photoFiles(getApplication())::file, out)
+        when (missing.size) {
+            0 -> "Saved."
+            1 -> "Saved, without 1 photo that hasn't reached this phone yet."
+            else -> "Saved, without ${missing.size} photos that haven't reached this phone yet."
+        }
+    }
+
+    /**
+     * Write to a document the save sheet created, reporting through [exportResult]. The
+     * sheet makes the file before anything is written, so a failure removes it: a
+     * half-written file left behind under a plausible name is worse than none.
+     */
+    private fun saveTo(uri: Uri, write: suspend (AppState, OutputStream) -> String) = viewModelScope.launch {
+        val app = getApplication<Application>()
+        _exportResult.value = "Saving…"
+        _exportResult.value = try {
+            val state = repo.state.first()
+            withContext(Dispatchers.IO) {
+                val out = app.contentResolver.openOutputStream(uri)
+                    ?: throw IllegalStateException("Provider returned no stream")
+                out.use { write(state, it) }
+            }
+        } catch (e: CancellationException) {
+            discard(uri)
+            throw e
+        } catch (e: Exception) {
+            Log.w("Bump", "Saving to $uri failed", e)
+            failed(uri, "That couldn't be saved")
+        } catch (e: OutOfMemoryError) {
+            // Many large photos can still outgrow the heap while the book is drawn.
+            failed(uri, "Ran out of memory making that")
+        }
+    }
+
+    /** Remove the half-written file, and only claim it is gone if it is. */
+    private fun failed(uri: Uri, what: String): String =
+        if (discard(uri)) {
+            "$what, so nothing was kept. Try again, or pick another place."
+        } else {
+            "$what. A partial file may be left where you saved it; delete it before keeping a copy."
+        }
+
+    private fun discard(uri: Uri): Boolean =
+        runCatching { DocumentsContract.deleteDocument(getApplication<Application>().contentResolver, uri) }
+            .onFailure { Log.w("Bump", "Couldn't remove the failed file", it) }
+            .getOrDefault(false)
 
     fun addAppointment(a: Appointment) = launch { repo.addAppointment(a) }
     fun addWeight(w: WeightEntry) = launch { repo.addWeight(w) }

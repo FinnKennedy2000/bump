@@ -483,6 +483,7 @@ private fun Entry(
                 // Contacts live on Today and in Settings, never in the log.
                 is Contact -> Unit
 
+
                 is Photo -> Row(
                     Modifier.clickable(onClickLabel = "Open photo") { onOpenPhoto(item) },
                     horizontalArrangement = Arrangement.spacedBy(Spacing.p3),

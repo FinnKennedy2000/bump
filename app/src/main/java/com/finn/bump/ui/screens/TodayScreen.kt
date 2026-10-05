@@ -185,6 +185,14 @@ fun TodayScreen(
                     horizontalArrangement = Arrangement.spacedBy(Spacing.p2),
                 ) {
                     QuietAction("Count kicks", Modifier.weight(1f), onCountKicks)
+                }
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Spacing.p6)
+                        .padding(top = Spacing.p2),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.p2),
+                ) {
                     QuietAction("Add note", Modifier.weight(1f)) { adding = LogTab.Notes }
                     QuietAction("Weight", Modifier.weight(1f)) { adding = LogTab.Weight }
                 }

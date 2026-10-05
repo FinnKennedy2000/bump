@@ -1,6 +1,8 @@
 package com.finn.bump.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -72,6 +74,12 @@ fun SettingsScreen(
     var pairingEntry by remember { mutableStateOf<SharingEntry?>(null) }
     var editingBaby by remember { mutableStateOf(false) }
     var pickingBirth by remember { mutableStateOf(false) }
+    val exportResult by vm.exportResult.collectAsStateWithLifecycle()
+    // The system's own "save as" sheet: the user picks where the zip goes, so the app
+    // needs no storage permission and no file provider.
+    val exportTo = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/zip")
+    ) { uri -> if (uri != null) vm.export(uri) }
 
     BackHandler(enabled = pairingEntry == null, onBack = onBack)
 
@@ -133,9 +141,19 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+            }
 
             Contacts(state.contacts, onAdd = vm::addContact, onRemove = vm::delete)
 
+            Section("Your record") {
+                SettingRow("Export everything", "Zip", last = true) {
+                    exportTo.launch("bump-${LocalDate.now()}.zip")
+                }
+                Text(
+                    exportResult ?: "Every entry and photo in one file you can keep anywhere.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
 
             Advanced(
