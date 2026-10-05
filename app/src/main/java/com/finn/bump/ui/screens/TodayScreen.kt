@@ -42,6 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.finn.bump.data.AppState
 import com.finn.bump.data.Contact
 import com.finn.bump.data.measuredOn
+import com.finn.bump.data.shortlist
 import com.finn.bump.data.displayName
 import com.finn.bump.domain.MilestoneWindow
 import com.finn.bump.domain.Pregnancy
@@ -84,6 +85,7 @@ fun TodayScreen(
     onCountKicks: () -> Unit,
     onContractions: () -> Unit,
     onBag: () -> Unit,
+    onNames: () -> Unit,
     onEveryWeek: () -> Unit,
     onSettings: () -> Unit,
     modifier: Modifier = Modifier,
@@ -201,6 +203,12 @@ fun TodayScreen(
                     QuietAction("Weight", Modifier.weight(1f)) { adding = LogTab.Weight }
                     QuietAction("Photo", Modifier.weight(1f)) { adding = LogTab.Photos }
                 }
+                NamesRow(
+                    state = state,
+                    me = vm.voter.collectAsStateWithLifecycle().value,
+                    onClick = onNames,
+                    modifier = Modifier.padding(horizontal = Spacing.p6).padding(top = Spacing.p2),
+                )
 
                 Next(state, vm, due, today, Modifier.padding(horizontal = Spacing.p6))
             }
@@ -465,6 +473,33 @@ private fun SizeBand(
             }
         }
         Rule()
+    }
+}
+
+/** The way into baby names, with the one number worth seeing from Today: how many you both like. */
+@Composable
+private fun NamesRow(state: AppState, me: String?, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val matches = me?.let { shortlist(state.nameVotes, it).count { e -> e.isMatch } } ?: 0
+    Row(
+        modifier
+            .fillMaxWidth()
+            .height(44.dp)
+            .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.small)
+            .clickable(onClickLabel = "Baby names", onClick = onClick)
+            .padding(horizontal = Spacing.p4),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text("Baby names", style = MaterialTheme.typography.labelLarge)
+        Text(
+            when (matches) {
+                0 -> "Find one together"
+                1 -> "1 you both like"
+                else -> "$matches you both like"
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = if (matches > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 

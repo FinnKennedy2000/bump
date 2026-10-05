@@ -42,6 +42,7 @@ import com.finn.bump.ui.screens.ContractionsScreen
 import com.finn.bump.ui.screens.JourneyScreen
 import com.finn.bump.ui.screens.KicksScreen
 import com.finn.bump.ui.screens.LogScreen
+import com.finn.bump.ui.screens.NamesScreen
 import com.finn.bump.ui.screens.OnboardingScreen
 import com.finn.bump.ui.screens.SettingsScreen
 import com.finn.bump.ui.screens.SizeChartScreen
@@ -62,7 +63,7 @@ private enum class Tab(val label: String, val icon: ImageVector) {
 }
 
 /** A screen that covers the tabs while it is open. */
-private enum class Overlay { Kicks, Contractions, Checklist, SizeChart, Settings }
+private enum class Overlay { Kicks, Contractions, Checklist, Names, SizeChart, Settings }
 
 @Composable
 fun BumpApp(vm: BumpViewModel) {
@@ -100,6 +101,11 @@ fun BumpApp(vm: BumpViewModel) {
             return
         }
 
+        Overlay.Names -> {
+            NamesScreen(current, vm, onClose = { overlayName = null })
+            return
+        }
+
         Overlay.SizeChart -> {
             SizeChartScreen(
                 weeks = vm.weeks,
@@ -132,6 +138,7 @@ fun BumpApp(vm: BumpViewModel) {
                 onCountKicks = { overlayName = Overlay.Kicks.name },
                 onContractions = { overlayName = Overlay.Contractions.name },
                 onBag = { overlayName = Overlay.Checklist.name },
+                onNames = { overlayName = Overlay.Names.name },
                 onEveryWeek = { overlayName = Overlay.SizeChart.name },
                 onSettings = { overlayName = Overlay.Settings.name },
                 modifier = modifier,

@@ -25,6 +25,8 @@ import com.finn.bump.data.Contact
 import com.finn.bump.data.Contraction
 import com.finn.bump.data.KickSession
 import com.finn.bump.data.Moment
+import com.finn.bump.data.NameVote
+import com.finn.bump.data.sharedYeses
 import com.finn.bump.data.Note
 import com.finn.bump.data.Photo
 import com.finn.bump.data.PhotoFiles
@@ -209,6 +211,11 @@ class KeepsakePdf(context: Context, private val weeks: WeekTable, private val ph
             add("Kick counts" to count(live.kickSessions.size, "session"))
             add("Photos" to count(live.photos.size, "photo"))
             live.contacts.forEach { add(it.label to it.number) }
+            // Matches only: the names you both said yes to are the shared story; who
+            // turned down what is nobody's keepsake.
+            sharedYeses(live.nameVotes).takeIf { it.isNotEmpty() }?.let {
+                add("Names you both liked" to it.joinToString(", "))
+            }
         }
         val keyPaint = text(sansMedium, 8.5f, label)
         val valuePaint = text(serif, 13f, ink)
@@ -378,7 +385,7 @@ class KeepsakePdf(context: Context, private val weeks: WeekTable, private val ph
             is Photo -> Triple("Photo", Palette.Rose.toArgb(), Palette.Rose.toArgb())
             is Contraction -> Triple("Contractions", Palette.Ochre.toArgb(), Palette.OchreText.toArgb())
             // Contacts are listed with the facts; the bag list stays in the data export.
-            is Contact, is ChecklistItem -> error("not a timeline moment")
+            is Contact, is ChecklistItem, is NameVote -> error("not a timeline moment")
         }
         val dateText = when (item) {
             is Appointment -> Instant.ofEpochMilli(item.atMillis).atZone(zone).format(DATE_TIME)
@@ -397,7 +404,7 @@ class KeepsakePdf(context: Context, private val weeks: WeekTable, private val ph
                 textParts("${count(item.kicks, "kick")} in ${minutes(item.durationMillis)}", text(sansMedium, 10.5f, ink))
             is Photo -> photoParts(item)
             is Contraction -> contractionParts(m.contractions)
-            is Contact, is ChecklistItem -> emptyList()
+            is Contact, is ChecklistItem, is NameVote -> emptyList()
         }
 
         // Pack the parts into page-sized blocks; the first carries the date and the dot.

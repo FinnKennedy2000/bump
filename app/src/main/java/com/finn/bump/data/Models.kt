@@ -1,5 +1,7 @@
 package com.finn.bump.data
 
+import com.finn.bump.domain.NameGroup
+import com.finn.bump.domain.Verdict
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -126,6 +128,29 @@ data class ChecklistItem(
 ) : Logged
 
 /**
+ * One person's feeling about one name. Each phone votes for itself — [voter] is a random
+ * id this install made for itself, kept out of the synced record — so the two of you can
+ * each swipe without seeing the other's answers until you both say yes.
+ *
+ * The [id] is made from voter and name, so changing your mind edits the same item and
+ * last-write-wins settles it like any other edit.
+ */
+@Serializable
+data class NameVote(
+    override val id: String,
+    val voter: String,
+    val name: String,
+    val group: NameGroup,
+    val verdict: Verdict,
+    override val updatedAt: Long = System.currentTimeMillis(),
+    override val deleted: Boolean = false,
+) : Logged {
+    companion object {
+        fun idFor(voter: String, name: String) = "$voter:${name.trim().lowercase()}"
+    }
+}
+
+/**
  * Someone to ring — the triage line, the midwife, the labour ward — entered by the two of
  * you. Stored as typed: the app dials what is here and never decides who you should call.
  */
@@ -175,6 +200,7 @@ data class AppState(
     val contacts: List<Contact> = emptyList(),
     val contractions: List<Contraction> = emptyList(),
     val checklist: List<ChecklistItem> = emptyList(),
+    val nameVotes: List<NameVote> = emptyList(),
 )
 
 /**

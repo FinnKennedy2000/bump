@@ -6,6 +6,9 @@ import com.finn.bump.data.sync.SyncSettings
 import com.finn.bump.data.sync.Syncer
 import com.finn.bump.domain.Milestone
 import com.finn.bump.domain.MilestoneTable
+import com.finn.bump.domain.NameIdea
+import com.finn.bump.domain.Verdict
+import com.finn.bump.domain.NameTable
 import com.finn.bump.domain.WeekInfo
 import com.finn.bump.domain.WeekTable
 import kotlinx.serialization.builtins.ListSerializer
@@ -60,6 +63,15 @@ object Bump {
     fun weekTable(context: Context): WeekTable =
         weeks ?: synchronized(this) {
             weeks ?: loadWeekTable(context.applicationContext).also { weeks = it }
+        }
+
+    @Volatile private var names: NameTable? = null
+
+    fun nameTable(context: Context): NameTable =
+        names ?: synchronized(this) {
+            names ?: NameTable(
+                readList(context.applicationContext, com.finn.bump.R.raw.names, NameIdea.serializer())
+            ).also { names = it }
         }
 
     fun milestoneTable(context: Context): MilestoneTable =
@@ -126,6 +138,20 @@ class BumpRepository(private val store: DataStore<AppState>) {
         s.copy(checklist = s.checklist.map { if (it.id == id) it.copy(done = done, updatedAt = now) else it })
     }
 
+    /** One vote per voter per name: a new verdict replaces (and undeletes) the old one. */
+    suspend fun vote(v: NameVote) = update { s ->
+        val stamped = v.copy(updatedAt = System.currentTimeMillis(), deleted = false)
+        s.copy(nameVotes = s.nameVotes.filterNot { it.id == v.id } + stamped)
+    }
+
+    /** Withdraw a vote, but only if it is still [verdict] — an undo must not eat a later change of mind. */
+    suspend fun unvote(id: String, verdict: Verdict) = update { s ->
+        val now = System.currentTimeMillis()
+        s.copy(nameVotes = s.nameVotes.map {
+            if (it.id == id && !it.deleted && it.verdict == verdict) it.copy(deleted = true, updatedAt = now) else it
+        })
+    }
+
     suspend fun addAppointment(appointment: Appointment) =
         update { it.copy(appointments = it.appointments + appointment) }
 
@@ -187,6 +213,9 @@ class BumpRepository(private val store: DataStore<AppState>) {
                     if (it.id == item.id) it.copy(deleted = deleted, updatedAt = now) else it
                 })
                 is ChecklistItem -> s.copy(checklist = s.checklist.map {
+                    if (it.id == item.id) it.copy(deleted = deleted, updatedAt = now) else it
+                })
+                is NameVote -> s.copy(nameVotes = s.nameVotes.map {
                     if (it.id == item.id) it.copy(deleted = deleted, updatedAt = now) else it
                 })
             }

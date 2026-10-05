@@ -13,6 +13,9 @@ import com.finn.bump.data.BabySex
 import com.finn.bump.data.ChecklistItem
 import com.finn.bump.data.Contact
 import com.finn.bump.data.Contraction
+import com.finn.bump.data.NameVote
+import com.finn.bump.domain.NameGroup
+import com.finn.bump.domain.Verdict
 import com.finn.bump.data.writeExport
 import com.finn.bump.data.Bump
 import com.finn.bump.data.KickSession
@@ -119,6 +122,29 @@ class BumpViewModel(app: Application) : AndroidViewModel(app) {
 
     fun addContact(c: Contact) = launch { repo.addContact(c) }
 
+    val names = Bump.nameTable(app)
+
+    /** This phone's voter id; null for the moment before it is read. */
+    private val _voter = MutableStateFlow<String?>(null)
+    val voter: StateFlow<String?> = _voter
+
+    init {
+        viewModelScope.launch { _voter.value = syncSettings.voterId() }
+    }
+    fun vote(name: String, group: NameGroup, verdict: Verdict) {
+        val me = _voter.value ?: return
+        launch { repo.vote(NameVote(NameVote.idFor(me, name.trim()), me, name.trim(), group, verdict)) }
+    }
+
+    /**
+     * Take back this phone's [verdict] on a name, which puts it back in the deck. Runs as
+     * one store update after the vote's own (DataStore applies them in order), and does
+     * nothing if the vote has since been changed to something else.
+     */
+    fun unvote(name: String, verdict: Verdict) {
+        val me = _voter.value ?: return
+        launch { repo.unvote(NameVote.idFor(me, name), verdict) }
+    }
     /**
      * The contraction being timed right now, if any. Held here rather than in the screen so
      * closing the timer by reflex mid-contraction — to check the bag list, say — does not

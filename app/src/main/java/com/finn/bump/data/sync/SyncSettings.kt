@@ -22,6 +22,7 @@ private val Context.syncDataStore: DataStore<Preferences> by preferencesDataStor
 private val KEY_BASE_URL = stringPreferencesKey("base_url")
 private val KEY_SPACE_ID = stringPreferencesKey("space_id")
 private val KEY_TOKEN = stringPreferencesKey("token")
+private val KEY_VOTER = stringPreferencesKey("voter_id")
 
 /** The deployed backend. Editable under Advanced in Settings so a redeploy is not a rebuild. */
 const val DEFAULT_BASE_URL = "https://bump-api-production-3acf.up.railway.app"
@@ -78,6 +79,20 @@ class SyncSettings(private val context: Context) {
             it[KEY_SPACE_ID] = pairing.spaceId
             it[KEY_TOKEN] = pairing.token
         }
+    }
+
+    /**
+     * This install's own id, made once, used to tell its name votes from the partner's.
+     * Kept here rather than in `AppState` because the record is shared and this must not
+     * be: two phones syncing one id would see each other's votes as their own. Survives
+     * unpairing, so votes stay yours.
+     */
+    suspend fun voterId(): String {
+        var id: String? = null
+        context.syncDataStore.edit { prefs ->
+            id = prefs[KEY_VOTER] ?: java.util.UUID.randomUUID().toString().also { prefs[KEY_VOTER] = it }
+        }
+        return id!!
     }
 
     /** Unpair. The local document is untouched — leaving sync must never cost you data. */

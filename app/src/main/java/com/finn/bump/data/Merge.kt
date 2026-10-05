@@ -37,6 +37,7 @@ fun merge(local: AppState, remote: AppState): AppState {
         contacts = mergeItems(local.contacts, remote.contacts),
         contractions = mergeItems(local.contractions, remote.contractions),
         checklist = mergeItems(local.checklist, remote.checklist),
+        nameVotes = mergeItems(local.nameVotes, remote.nameVotes),
     )
 }
 
@@ -68,6 +69,7 @@ fun AppState.withoutTombstones(): AppState = copy(
     contacts = contacts.filterNot { it.deleted },
     contractions = contractions.filterNot { it.deleted },
     checklist = checklist.filterNot { it.deleted },
+    nameVotes = nameVotes.filterNot { it.deleted },
 )
 
 /** Which photo files have to move, and which way. */
