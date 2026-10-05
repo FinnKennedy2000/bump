@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.finn.bump.data.Appointment
 import com.finn.bump.data.AppState
 import com.finn.bump.data.BabySex
+import com.finn.bump.data.Contact
 import com.finn.bump.data.Bump
 import com.finn.bump.data.KickSession
 import com.finn.bump.data.Logged
@@ -107,6 +108,8 @@ class BumpViewModel(app: Application) : AndroidViewModel(app) {
         repo.setPaused(paused)
         refreshBumpWidget(getApplication())
     }
+
+    fun addContact(c: Contact) = launch { repo.addContact(c) }
 
     fun addAppointment(a: Appointment) = launch { repo.addAppointment(a) }
     fun addWeight(w: WeightEntry) = launch { repo.addWeight(w) }

@@ -1,5 +1,10 @@
 package com.finn.bump.ui.screens
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,6 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -30,9 +36,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.finn.bump.data.AppState
+import com.finn.bump.data.Contact
 import com.finn.bump.data.measuredOn
 import com.finn.bump.data.displayName
 import com.finn.bump.domain.MilestoneWindow
@@ -181,9 +189,26 @@ fun TodayScreen(
                     QuietAction("Weight", Modifier.weight(1f)) { adding = LogTab.Weight }
                 }
 
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Spacing.p6)
+                        .padding(top = Spacing.p4),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.p2),
+                ) {
+                    QuietAction("Count kicks", Modifier.weight(1f), onCountKicks)
+                    QuietAction("Add note", Modifier.weight(1f)) { adding = LogTab.Notes }
+                    QuietAction("Weight", Modifier.weight(1f)) { adding = LogTab.Weight }
+                }
+
                 Next(state, vm, due, today, Modifier.padding(horizontal = Spacing.p6))
             }
 
+            WhoToCall(
+                contacts = state.contacts,
+                onAdd = onSettings,
+                modifier = Modifier.padding(horizontal = Spacing.p6).padding(top = Spacing.p5),
+            )
 
             SyncStatusRow(
                 status = syncStatus,
@@ -291,6 +316,67 @@ private fun Ended(state: AppState, due: LocalDate, modifier: Modifier = Modifier
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+    }
+}
+
+/**
+ * The numbers you entered, one tap from dialling. It opens the dialler rather than
+ * calling, so a stray tap costs nothing and the app needs no call permission.
+ */
+@Composable
+private fun WhoToCall(contacts: List<Contact>, onAdd: () -> Unit, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    Column(modifier) {
+        MicroLabel("Who to call")
+        if (contacts.isEmpty()) {
+            Text(
+                "Add your midwife, triage and labour ward numbers",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .clickable(onClick = onAdd)
+                    .padding(vertical = Spacing.p3),
+            )
+            return
+        }
+        contacts.forEachIndexed { i, c ->
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clickable(onClickLabel = "Call ${c.label}") { dial(context, c.number) }
+                    .padding(vertical = Spacing.p3),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(c.label, style = MaterialTheme.typography.titleMedium)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.p2),
+                ) {
+                    Text(
+                        c.number,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Icon(
+                        Icons.Filled.Call,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
+            }
+            if (i < contacts.lastIndex) Rule()
+        }
+    }
+}
+
+internal fun dial(context: Context, number: String) {
+    try {
+        context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + Uri.encode(number))))
+    } catch (e: ActivityNotFoundException) {
+        // A phone always has a dialler; a tablet may not. Say so rather than do nothing.
+        Toast.makeText(context, "No app here can make calls", Toast.LENGTH_SHORT).show()
     }
 }
 

@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.finn.bump.data.Contact
 import com.finn.bump.data.measuredOn
 import com.finn.bump.data.AppState
 import com.finn.bump.data.Appointment
@@ -478,6 +479,9 @@ private fun Entry(
                         style = MaterialTheme.typography.titleMedium,
                     )
                 }
+
+                // Contacts live on Today and in Settings, never in the log.
+                is Contact -> Unit
 
                 is Photo -> Row(
                     Modifier.clickable(onClickLabel = "Open photo") { onOpenPhoto(item) },

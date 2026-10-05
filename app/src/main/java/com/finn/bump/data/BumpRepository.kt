@@ -111,6 +111,10 @@ class BumpRepository(private val store: DataStore<AppState>) {
     suspend fun setPaused(paused: Boolean) =
         update { it.copy(paused = paused, detailsUpdatedAt = System.currentTimeMillis()) }
 
+    suspend fun addContact(contact: Contact) = update {
+        it.copy(contacts = it.contacts + contact.copy(label = contact.label.trim(), number = contact.number.trim()))
+    }
+
     suspend fun addAppointment(appointment: Appointment) =
         update { it.copy(appointments = it.appointments + appointment) }
 
@@ -163,6 +167,9 @@ class BumpRepository(private val store: DataStore<AppState>) {
                     if (it.id == item.id) it.copy(deleted = deleted, updatedAt = now) else it
                 })
                 is Photo -> s.copy(photos = s.photos.map {
+                    if (it.id == item.id) it.copy(deleted = deleted, updatedAt = now) else it
+                })
+                is Contact -> s.copy(contacts = s.contacts.map {
                     if (it.id == item.id) it.copy(deleted = deleted, updatedAt = now) else it
                 })
             }

@@ -124,12 +124,14 @@ class MergeTest {
             weights = listOf(WeightEntry(id = "w", date = LocalDate.of(2026, 1, 1), kg = 60.0, updatedAt = 100)),
             kickSessions = listOf(KickSession(id = "k", startedAtMillis = 1, durationMillis = 2, kicks = 3, updatedAt = 100)),
             photos = listOf(Photo(id = "p", date = LocalDate.of(2026, 1, 1), caption = "mine", blob = "b1", updatedAt = 100)),
+            contacts = listOf(Contact(id = "c1", label = "Midwife", number = "1", updatedAt = 100)),
         )
         val theirs = AppState(
             appointments = listOf(Appointment(id = "ap", title = "theirs", atMillis = 1, updatedAt = 200)),
             weights = listOf(WeightEntry(id = "w2", date = LocalDate.of(2026, 1, 2), kg = 61.0, updatedAt = 100)),
             kickSessions = listOf(KickSession(id = "k", startedAtMillis = 1, durationMillis = 2, kicks = 9, updatedAt = 200)),
             photos = listOf(Photo(id = "p", date = LocalDate.of(2026, 1, 1), caption = "theirs", blob = "b1", updatedAt = 200)),
+            contacts = listOf(Contact(id = "c2", label = "Triage", number = "2", updatedAt = 100)),
         )
 
         val merged = merge(mine, theirs)
@@ -138,6 +140,7 @@ class MergeTest {
         assertEquals("theirs", merged.appointments.single().title)
         assertEquals(2, merged.weights.size)
         assertEquals(9, merged.kickSessions.single().kicks)
+        assertEquals(2, merged.contacts.size)
     }
 
     @Test
@@ -205,6 +208,16 @@ class MergeTest {
         assertTrue(merged.paused)
         // and an older copy cannot undo them
         assertEquals(merged, merge(merged, mine))
+    }
+
+    @Test
+    fun `contacts merge and delete like any other entry`() {
+        val triage = Contact(id = "t", label = "Triage", number = "0100", updatedAt = 100)
+        val mine = AppState(contacts = listOf(triage, Contact(id = "m", label = "Midwife", number = "0200", updatedAt = 100)))
+        val theirs = AppState(contacts = listOf(triage.copy(deleted = true, updatedAt = 200)))
+
+        val merged = merge(mine, theirs).withoutTombstones()
+        assertEquals(listOf("Midwife"), merged.contacts.map { it.label })
     }
 
     @Test

@@ -103,6 +103,19 @@ data class Photo(
 ) : Logged
 
 /**
+ * Someone to ring — the triage line, the midwife, the labour ward — entered by the two of
+ * you. Stored as typed: the app dials what is here and never decides who you should call.
+ */
+@Serializable
+data class Contact(
+    override val id: String = newId(),
+    val label: String,
+    val number: String,
+    override val updatedAt: Long = System.currentTimeMillis(),
+    override val deleted: Boolean = false,
+) : Logged
+
+/**
  * The whole app. One serialisable tree, persisted as a single JSON document.
  *
  * [babyName] is the chosen name and [babyNickname] is what you call the bump before
@@ -136,6 +149,7 @@ data class AppState(
     val notes: List<Note> = emptyList(),
     val kickSessions: List<KickSession> = emptyList(),
     val photos: List<Photo> = emptyList(),
+    val contacts: List<Contact> = emptyList(),
 )
 
 /**

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -31,11 +32,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.finn.bump.data.AppState
+import com.finn.bump.data.Contact
 import com.finn.bump.data.sync.SyncStatus
 import com.finn.bump.ui.BumpViewModel
 import com.finn.bump.ui.components.BackRow
@@ -131,6 +134,8 @@ fun SettingsScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
+            Contacts(state.contacts, onAdd = vm::addContact, onRemove = vm::delete)
+
             }
 
             Advanced(
@@ -156,6 +161,64 @@ fun SettingsScreen(
                 pickingBirth = false
             },
         )
+    }
+}
+
+/** The numbers Today offers to dial. Free text both ways: the app never judges who to ring. */
+@Composable
+private fun Contacts(
+    contacts: List<Contact>,
+    onAdd: (Contact) -> Unit,
+    onRemove: (Contact) -> Unit,
+) {
+    var label by remember { mutableStateOf("") }
+    var number by remember { mutableStateOf("") }
+
+    Section("Who to call") {
+        contacts.forEach { c ->
+            Row(
+                Modifier.fillMaxWidth().padding(vertical = Spacing.p3),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text(c.label, style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        c.number,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                TextAction("Remove") { onRemove(c) }
+            }
+            Rule()
+        }
+        OutlinedTextField(
+            value = label,
+            onValueChange = { label = it },
+            singleLine = true,
+            label = { Text("Who — e.g. Maternity triage") },
+            modifier = Modifier.fillMaxWidth().padding(top = Spacing.p2),
+        )
+        OutlinedTextField(
+            value = number,
+            onValueChange = { number = it },
+            singleLine = true,
+            label = { Text("Number") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            modifier = Modifier.fillMaxWidth().padding(top = Spacing.p2),
+        )
+        SmallButton(
+            "Add number",
+            Modifier.padding(top = Spacing.p3),
+            filled = label.isNotBlank() && number.isNotBlank(),
+        ) {
+            if (label.isNotBlank() && number.isNotBlank()) {
+                onAdd(Contact(label = label, number = number))
+                label = ""
+                number = ""
+            }
+        }
     }
 }
 

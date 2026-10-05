@@ -34,6 +34,7 @@ fun merge(local: AppState, remote: AppState): AppState {
         notes = mergeItems(local.notes, remote.notes),
         kickSessions = mergeItems(local.kickSessions, remote.kickSessions),
         photos = mergeItems(local.photos, remote.photos),
+        contacts = mergeItems(local.contacts, remote.contacts),
     )
 }
 
@@ -62,6 +63,7 @@ fun AppState.withoutTombstones(): AppState = copy(
     notes = notes.filterNot { it.deleted },
     kickSessions = kickSessions.filterNot { it.deleted },
     photos = photos.filterNot { it.deleted },
+    contacts = contacts.filterNot { it.deleted },
 )
 
 /** Which photo files have to move, and which way. */
