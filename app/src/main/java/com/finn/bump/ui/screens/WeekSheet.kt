@@ -52,6 +52,8 @@ import com.finn.bump.ui.components.PhotoViewer
 import com.finn.bump.ui.components.Rule
 import com.finn.bump.ui.components.ScaleBar
 import com.finn.bump.ui.components.SegmentedToggle
+import com.finn.bump.ui.components.FetusPicture
+import com.finn.bump.ui.components.LifeSizeHandFootArt
 import com.finn.bump.ui.components.WeekMark
 import com.finn.bump.ui.theme.LocalBumpExtras
 import com.finn.bump.ui.theme.Spacing
@@ -162,6 +164,29 @@ internal fun WeekSheet(
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(top = Spacing.p5),
             )
+
+            if (week >= 5) {
+                MicroLabel("What baby looks like now", Modifier.padding(top = Spacing.p5, bottom = Spacing.p2))
+                FetusPicture(week, Modifier.fillMaxWidth())
+                if (info.looks.isNotBlank()) {
+                    Text(
+                        info.looks,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(top = Spacing.p3),
+                    )
+                }
+                Text(
+                    "An illustration of typical features, not a scan.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = Spacing.p1),
+                )
+            }
+
+            if (info.handMm != null || info.footMm != null) {
+                MicroLabel("Hands and feet, life size", Modifier.padding(top = Spacing.p5, bottom = Spacing.p2))
+                LifeSizeHandFootArt(info.handMm?.toFloat(), info.footMm?.toFloat())
+            }
 
             if (thisWeeks.isNotEmpty()) {
                 MicroLabel("Your photos", Modifier.padding(top = Spacing.p5, bottom = Spacing.p2))

@@ -133,3 +133,10 @@ spec, including what was deliberately left out.
 `docs/SYNC_PLAN.md` — how sharing works and why it is built this way.
 
 `backend/README.md` — the sync API, running its tests, and deploying it.
+
+## Credits
+
+The hand and foot outlines in the life-size view are third-party artwork, both free of copyright:
+
+- `res/drawable/baby_hand.xml`: "Hand Pinhead icon.svg", Wikimedia Commons, CC0 (https://commons.wikimedia.org/wiki/File:Hand_Pinhead_icon.svg).
+- `res/drawable/baby_foot.xml`: "Right footprint.svg" by Benji Park, Open Clip Art Library, public domain, mirrored (https://commons.wikimedia.org/wiki/File:Right_footprint.svg).

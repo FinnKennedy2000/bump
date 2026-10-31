@@ -20,6 +20,12 @@ data class WeekInfo(
     val lengthCm: Double?,
     val weightG: Int?,
     val blurb: String,
+    /** What baby looks like this week, in a sentence or two. Population averages, not a check. */
+    val looks: String = "",
+    /** Typical hand length in mm, null before week 8. */
+    val handMm: Int? = null,
+    /** Typical foot length in mm, null before week 8. */
+    val footMm: Int? = null,
 ) {
     val measuresCrownToHeel: Boolean get() = week >= 21
 

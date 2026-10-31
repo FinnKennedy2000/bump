@@ -35,6 +35,20 @@ class WeeksJsonTest {
     }
 
     @Test
+    fun `every week says what baby looks like, and hand and foot sizes start at week 8`() {
+        weeks.forEach { w ->
+            assertTrue("week ${w.week} has no looks", w.looks.isNotBlank())
+            assertEquals("week ${w.week} hand", w.week < 8, w.handMm == null)
+            assertEquals("week ${w.week} foot", w.week < 8, w.footMm == null)
+        }
+        val hands = weeks.mapNotNull { it.handMm }
+        val feet = weeks.mapNotNull { it.footMm }
+        assertEquals(hands.sorted(), hands)
+        assertEquals(feet.sorted(), feet)
+        assertTrue("foot at 40 is ${feet.last()}", feet.last() in 60..85)
+    }
+
+    @Test
     fun `length and weight only ever increase`() {
         val lengths = weeks.mapNotNull { it.lengthCm }
         assertEquals(lengths.sorted(), lengths)

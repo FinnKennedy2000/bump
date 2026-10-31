@@ -4,286 +4,409 @@
     "size": "Not yet",
     "lengthCm": null,
     "weightG": null,
-    "blurb": "Week 0 is the first day of your last period. There is no baby yet — dating starts here because it is the one date that can be pinned down reliably."
+    "blurb": "Week 0 is the first day of your last period. There is no baby yet — dating starts here because it is the one date that can be pinned down reliably.",
+    "looks": "No baby yet; this is the start of the count.",
+    "handMm": null,
+    "footMm": null
   },
   {
     "week": 1,
     "size": "Not yet",
     "lengthCm": null,
     "weightG": null,
-    "blurb": "Still counting from your last period. Ovulation is roughly a fortnight away."
+    "blurb": "Still counting from your last period. Ovulation is roughly a fortnight away.",
+    "looks": "No baby yet; the body is preparing for ovulation.",
+    "handMm": null,
+    "footMm": null
   },
   {
     "week": 2,
     "size": "Not yet",
     "lengthCm": null,
     "weightG": null,
-    "blurb": "Ovulation happens around now. Conception, when it happens, is usually dated to this week."
+    "blurb": "Ovulation happens around now. Conception, when it happens, is usually dated to this week.",
+    "looks": "No baby yet; an egg is released around now.",
+    "handMm": null,
+    "footMm": null
   },
   {
     "week": 3,
     "size": "Poppy seed",
     "lengthCm": 0.01,
     "weightG": null,
-    "blurb": "A fertilised egg is dividing as it travels to the uterus and implants. Far too small to see."
+    "blurb": "A fertilised egg is dividing as it travels to the uterus and implants. Far too small to see.",
+    "looks": "A tiny ball of cells, far too small to see, with no features yet.",
+    "handMm": null,
+    "footMm": null
   },
   {
     "week": 4,
     "size": "Poppy seed",
     "lengthCm": 0.1,
     "weightG": null,
-    "blurb": "Implantation is complete and the pregnancy hormone hCG starts rising — this is when a test usually turns positive."
+    "blurb": "Implantation is complete and the pregnancy hormone hCG starts rising — this is when a test usually turns positive.",
+    "looks": "A flat disc of cells in layers, which will go on to form every part of the body.",
+    "handMm": null,
+    "footMm": null
   },
   {
     "week": 5,
     "size": "Sesame seed",
     "lengthCm": 0.2,
     "weightG": null,
-    "blurb": "The neural tube, which becomes the brain and spinal cord, is forming. The heart is a simple tube that has just begun to beat."
+    "blurb": "The neural tube, which becomes the brain and spinal cord, is forming. The heart is a simple tube that has just begun to beat.",
+    "looks": "A curved, tadpole-like shape with a tiny beating heart tube and dark spots where the eyes will be.",
+    "handMm": null,
+    "footMm": null
   },
   {
     "week": 6,
     "size": "Lentil",
     "lengthCm": 0.4,
     "weightG": null,
-    "blurb": "Facial features start as small folds. Arm and leg buds appear. A heartbeat may be visible on an early scan."
+    "blurb": "Facial features start as small folds. Arm and leg buds appear. A heartbeat may be visible on an early scan.",
+    "looks": "A small curled shape with a head, a tail and tiny buds where the arms and legs will grow.",
+    "handMm": null,
+    "footMm": null
   },
   {
     "week": 7,
     "size": "Blueberry",
     "lengthCm": 1.0,
     "weightG": 1,
-    "blurb": "The brain is growing fast. Hands and feet look like paddles. The umbilical cord is fully formed."
+    "blurb": "The brain is growing fast. Hands and feet look like paddles. The umbilical cord is fully formed.",
+    "looks": "The head is large compared with the body, and the arm buds are flattening into paddles.",
+    "handMm": null,
+    "footMm": null
   },
   {
     "week": 8,
     "size": "Raspberry",
     "lengthCm": 1.6,
     "weightG": 1,
-    "blurb": "All the essential organs have begun to form. Fingers and toes are webbed but distinct."
+    "blurb": "All the essential organs have begun to form. Fingers and toes are webbed but distinct.",
+    "looks": "Fingers and toes are starting to show as ridges on the paddles, and the tail is fading.",
+    "handMm": 1,
+    "footMm": 1
   },
   {
     "week": 9,
     "size": "Grape",
     "lengthCm": 2.3,
     "weightG": 2,
-    "blurb": "The embryo is officially a fetus this week. Tiny muscles allow the first movements, far too faint to feel."
+    "blurb": "The embryo is officially a fetus this week. Tiny muscles allow the first movements, far too faint to feel.",
+    "looks": "A recognisable small person shape, with eyelids beginning to form and the toes distinct.",
+    "handMm": 2,
+    "footMm": 2
   },
   {
     "week": 10,
     "size": "Strawberry",
     "lengthCm": 3.1,
     "weightG": 4,
-    "blurb": "Vital organs are in place and starting to work. Nails begin forming and bones are hardening."
+    "blurb": "Vital organs are in place and starting to work. Nails begin forming and bones are hardening.",
+    "looks": "The tail is gone, fingers and toes are separate, and the skin is thin and see-through.",
+    "handMm": 3,
+    "footMm": 3
   },
   {
     "week": 11,
     "size": "Fig",
     "lengthCm": 4.1,
     "weightG": 7,
-    "blurb": "The head is still about half the total length. Tooth buds are appearing and fingers and toes have separated."
+    "blurb": "The head is still about half the total length. Tooth buds are appearing and fingers and toes have separated.",
+    "looks": "The head is about half the length of the body, and the eyelids have closed over the eyes.",
+    "handMm": 4,
+    "footMm": 5
   },
   {
     "week": 12,
     "size": "Lime",
     "lengthCm": 5.4,
     "weightG": 14,
-    "blurb": "Reflexes are developing — fingers can curl. The 12-week dating scan usually happens around now."
+    "blurb": "Reflexes are developing — fingers can curl. The 12-week dating scan usually happens around now.",
+    "looks": "The face looks more human, with a nose, chin and ears in place, and tiny nail beds starting.",
+    "handMm": 6,
+    "footMm": 7
   },
   {
     "week": 13,
     "size": "Peach",
     "lengthCm": 7.4,
     "weightG": 23,
-    "blurb": "Start of the second trimester. Vocal cords are forming and fingerprints have appeared."
+    "blurb": "Start of the second trimester. Vocal cords are forming and fingerprints have appeared.",
+    "looks": "The skin is translucent enough to show blood vessels, and the eyelids stay fused shut.",
+    "handMm": 8,
+    "footMm": 9
   },
   {
     "week": 14,
     "size": "Lemon",
     "lengthCm": 8.7,
     "weightG": 43,
-    "blurb": "The baby can squint, frown and grimace. Fine downy hair called lanugo covers the body."
+    "blurb": "The baby can squint, frown and grimace. Fine downy hair called lanugo covers the body.",
+    "looks": "Fine downy hair called lanugo begins to cover the skin, and the neck is longer.",
+    "handMm": 10,
+    "footMm": 12
   },
   {
     "week": 15,
     "size": "Apple",
     "lengthCm": 10.1,
     "weightG": 70,
-    "blurb": "Bones are hardening quickly. The baby can sense light through closed eyelids."
+    "blurb": "Bones are hardening quickly. The baby can sense light through closed eyelids.",
+    "looks": "Eyebrows and scalp hair start to appear, and the skin is still thin and see-through.",
+    "handMm": 13,
+    "footMm": 15
   },
   {
     "week": 16,
     "size": "Avocado",
     "lengthCm": 11.6,
     "weightG": 100,
-    "blurb": "Facial muscles allow expressions. The heart pumps around 25 litres of blood a day."
+    "blurb": "Facial muscles allow expressions. The heart pumps around 25 litres of blood a day.",
+    "looks": "The ears stand out a little from the head, and fingernails are forming.",
+    "handMm": 16,
+    "footMm": 18
   },
   {
     "week": 17,
     "size": "Pear",
     "lengthCm": 13.0,
     "weightG": 140,
-    "blurb": "Fat stores begin forming under the skin. The skeleton is shifting from cartilage to bone."
+    "blurb": "Fat stores begin forming under the skin. The skeleton is shifting from cartilage to bone.",
+    "looks": "The first fat starts to build under the skin, which is still thin and wrinkled.",
+    "handMm": 19,
+    "footMm": 21
   },
   {
     "week": 18,
     "size": "Bell pepper",
     "lengthCm": 14.2,
     "weightG": 190,
-    "blurb": "Hearing is developing — the baby may start to register sounds. Many people feel the first movements around now."
+    "blurb": "Hearing is developing — the baby may start to register sounds. Many people feel the first movements around now.",
+    "looks": "The ears are in their final position, and the fingers have their own tiny prints.",
+    "handMm": 22,
+    "footMm": 24
   },
   {
     "week": 19,
     "size": "Mango",
     "lengthCm": 15.3,
     "weightG": 240,
-    "blurb": "A waxy coating called vernix now protects the skin. The senses are developing rapidly."
+    "blurb": "A waxy coating called vernix now protects the skin. The senses are developing rapidly.",
+    "looks": "A creamy coating called vernix begins to cover the skin, with lanugo holding it in place.",
+    "handMm": 25,
+    "footMm": 27
   },
   {
     "week": 20,
     "size": "Banana",
     "lengthCm": 16.4,
     "weightG": 300,
-    "blurb": "Halfway. The anomaly scan usually happens this week. From next week length is measured crown to heel, so the number jumps."
+    "blurb": "Halfway. The anomaly scan usually happens this week. From next week length is measured crown to heel, so the number jumps.",
+    "looks": "Covered in vernix and fine lanugo, with eyebrows, lashes and fingernails all visible.",
+    "handMm": 28,
+    "footMm": 30
   },
   {
     "week": 21,
     "size": "Carrot",
     "lengthCm": 26.7,
     "weightG": 360,
-    "blurb": "Measurement switches to full length, crown to heel. The baby swallows small amounts of amniotic fluid daily."
+    "blurb": "Measurement switches to full length, crown to heel. The baby swallows small amounts of amniotic fluid daily.",
+    "looks": "Lean and long with thin, reddish, wrinkled skin; the eyebrows and eyelids are well formed.",
+    "handMm": 30,
+    "footMm": 33
   },
   {
     "week": 22,
     "size": "Papaya",
     "lengthCm": 27.8,
     "weightG": 430,
-    "blurb": "Eyebrows and eyelashes are visible. Grip is developing and the sense of touch is sharpening."
+    "blurb": "Eyebrows and eyelashes are visible. Grip is developing and the sense of touch is sharpening.",
+    "looks": "The face looks like a miniature newborn's, though the lips and eyebrows are still faint.",
+    "handMm": 32,
+    "footMm": 36
   },
   {
     "week": 23,
     "size": "Grapefruit",
     "lengthCm": 28.9,
     "weightG": 501,
-    "blurb": "Hearing is good enough to pick up your voice. Skin is still wrinkled while fat fills out underneath."
+    "blurb": "Hearing is good enough to pick up your voice. Skin is still wrinkled while fat fills out underneath.",
+    "looks": "The skin is wrinkled and red-tinged, with fingernails reaching the fingertips.",
+    "handMm": 34,
+    "footMm": 39
   },
   {
     "week": 24,
     "size": "Ear of corn",
     "lengthCm": 30.0,
     "weightG": 600,
-    "blurb": "A milestone week: lungs are developing the branches needed to breathe air."
+    "blurb": "A milestone week: lungs are developing the branches needed to breathe air.",
+    "looks": "The skin is translucent and wrinkly, and the face is fully formed with eyelashes in place.",
+    "handMm": 36,
+    "footMm": 42
   },
   {
     "week": 25,
     "size": "Broccoli",
     "lengthCm": 34.6,
     "weightG": 660,
-    "blurb": "The baby is putting on fat steadily. Hair is growing and beginning to show colour and texture."
+    "blurb": "The baby is putting on fat steadily. Hair is growing and beginning to show colour and texture.",
+    "looks": "The body is filling out a little and the skin is starting to look smoother, with hair growing thicker.",
+    "handMm": 38,
+    "footMm": 45
   },
   {
     "week": 26,
     "size": "Courgette",
     "lengthCm": 35.6,
     "weightG": 760,
-    "blurb": "Eyes open for the first time. Lungs are practising breathing movements with amniotic fluid."
+    "blurb": "Eyes open for the first time. Lungs are practising breathing movements with amniotic fluid.",
+    "looks": "The eyelids begin to open, and the eyes are formed.",
+    "handMm": 40,
+    "footMm": 48
   },
   {
     "week": 27,
     "size": "Cauliflower",
     "lengthCm": 36.6,
     "weightG": 875,
-    "blurb": "End of the second trimester. Sleeping and waking patterns are becoming regular and hiccups are common."
+    "blurb": "End of the second trimester. Sleeping and waking patterns are becoming regular and hiccups are common.",
+    "looks": "The eyes open and close, and the eyelashes are fully grown.",
+    "handMm": 42,
+    "footMm": 51
   },
   {
     "week": 28,
     "size": "Aubergine",
     "lengthCm": 37.6,
     "weightG": 1005,
-    "blurb": "Third trimester. The brain is developing deep grooves and the baby can now dream."
+    "blurb": "Third trimester. The brain is developing deep grooves and the baby can now dream.",
+    "looks": "The skin is less see-through as more fat builds up, and the head is covered in hair.",
+    "handMm": 44,
+    "footMm": 54
   },
   {
     "week": 29,
     "size": "Butternut squash",
     "lengthCm": 38.6,
     "weightG": 1153,
-    "blurb": "Muscles and lungs are maturing. Kicks are getting noticeably stronger."
+    "blurb": "Muscles and lungs are maturing. Kicks are getting noticeably stronger.",
+    "looks": "The body is plumper and the skin is becoming smoother and pinker.",
+    "handMm": 46,
+    "footMm": 57
   },
   {
     "week": 30,
     "size": "Cabbage",
     "lengthCm": 39.9,
     "weightG": 1319,
-    "blurb": "Around a litre and a half of amniotic fluid surrounds the baby — this begins to reduce as space runs short."
+    "blurb": "Around a litre and a half of amniotic fluid surrounds the baby — this begins to reduce as space runs short.",
+    "looks": "The lanugo is starting to thin out, and the skin is smoother as the fat layer grows.",
+    "handMm": 48,
+    "footMm": 60
   },
   {
     "week": 31,
     "size": "Coconut",
     "lengthCm": 41.1,
     "weightG": 1502,
-    "blurb": "All five senses are working. The baby is putting on weight quickly now."
+    "blurb": "All five senses are working. The baby is putting on weight quickly now.",
+    "looks": "Rounder in shape, with fingernails reaching the tips and skin that is no longer see-through.",
+    "handMm": 50,
+    "footMm": 62
   },
   {
     "week": 32,
     "size": "Squash",
     "lengthCm": 42.4,
     "weightG": 1702,
-    "blurb": "Fingernails and toenails have grown in. Most babies have turned head-down or will soon."
+    "blurb": "Fingernails and toenails have grown in. Most babies have turned head-down or will soon.",
+    "looks": "The toenails are in place and the skin is pink and smooth.",
+    "handMm": 51,
+    "footMm": 64
   },
   {
     "week": 33,
     "size": "Pineapple",
     "lengthCm": 43.7,
     "weightG": 1918,
-    "blurb": "Skull bones stay soft and separate to make the journey out easier. The immune system is developing."
+    "blurb": "Skull bones stay soft and separate to make the journey out easier. The immune system is developing.",
+    "looks": "The skin is soft and smooth as the fat layer thickens, and the head hair is growing.",
+    "handMm": 52,
+    "footMm": 66
   },
   {
     "week": 34,
     "size": "Cantaloupe",
     "lengthCm": 45.0,
     "weightG": 2146,
-    "blurb": "Fat continues to fill out under the skin. Lungs are nearly ready."
+    "blurb": "Fat continues to fill out under the skin. Lungs are nearly ready.",
+    "looks": "Covered in a thick coat of vernix, with fingernails reaching past the fingertips.",
+    "handMm": 53,
+    "footMm": 68
   },
   {
     "week": 35,
     "size": "Honeydew melon",
     "lengthCm": 46.2,
     "weightG": 2383,
-    "blurb": "The brain gains weight rapidly. Space is tight, so movements feel more like rolls than kicks."
+    "blurb": "The brain gains weight rapidly. Space is tight, so movements feel more like rolls than kicks.",
+    "looks": "Plump and rounded, with most of the lanugo gone and the skin soft and smooth.",
+    "handMm": 54,
+    "footMm": 70
   },
   {
     "week": 36,
     "size": "Romaine lettuce",
     "lengthCm": 47.4,
     "weightG": 2622,
-    "blurb": "The baby is likely head-down and settling into position. Weight gain is around 30g a day."
+    "blurb": "The baby is likely head-down and settling into position. Weight gain is around 30g a day.",
+    "looks": "The wrinkles smooth out as fat fills in, and the body looks like a newborn's.",
+    "handMm": 55,
+    "footMm": 72
   },
   {
     "week": 37,
     "size": "Bunch of celery",
     "lengthCm": 48.6,
     "weightG": 2859,
-    "blurb": "Early term. The baby practises breathing, sucking and blinking, getting ready for the outside."
+    "blurb": "Early term. The baby practises breathing, sucking and blinking, getting ready for the outside.",
+    "looks": "Fully formed, with a thick vernix coat and soft skin; hair length varies a lot from baby to baby.",
+    "handMm": 56,
+    "footMm": 73
   },
   {
     "week": 38,
     "size": "Leek",
     "lengthCm": 49.8,
     "weightG": 3083,
-    "blurb": "Organs are mature and ready. The vernix and lanugo are mostly shed."
+    "blurb": "Organs are mature and ready. The vernix and lanugo are mostly shed.",
+    "looks": "The lanugo has mostly gone, and the vernix is thinning, with firm, smooth skin.",
+    "handMm": 57,
+    "footMm": 74
   },
   {
     "week": 39,
     "size": "Watermelon",
     "lengthCm": 50.7,
     "weightG": 3288,
-    "blurb": "Full term. The chest is becoming more prominent and the head is roughly the size of the chest."
+    "blurb": "Full term. The chest is becoming more prominent and the head is roughly the size of the chest.",
+    "looks": "Plump and smooth, with a layer of fat under the skin and nails that may need trimming at birth.",
+    "handMm": 58,
+    "footMm": 75
   },
   {
     "week": 40,
     "size": "Pumpkin",
     "lengthCm": 51.2,
     "weightG": 3462,
-    "blurb": "Your due date. Only about 4 in 100 babies arrive on it — anywhere from 37 to 42 weeks is normal."
+    "blurb": "Your due date. Only about 4 in 100 babies arrive on it — anywhere from 37 to 42 weeks is normal.",
+    "looks": "A full-term newborn look, with smooth skin, a rounded body and often a little vernix left.",
+    "handMm": 59,
+    "footMm": 76
   }
 ]
