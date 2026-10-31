@@ -89,4 +89,14 @@ class NamesTest {
         assertEquals(2, merged.nameVotes.size)
         assertTrue(shortlist(merged.nameVotes, "me").single().isMatch)
     }
+
+    @Test
+    fun `a culture filter keeps only that culture and leaves partner-typed names out`() {
+        val ideas = listOf(
+            NameIdea("Aoife", GIRL, "Irish", "x"), NameIdea("Olga", GIRL, "Russian", "x"), NameIdea("Rhian", GIRL, "Welsh", "x"),
+        )
+        val votes = listOf(vote("them", "Marigold", YES))
+        assertEquals(listOf("Aoife"), nameQueue(ideas, votes, "me", GIRL, com.finn.bump.domain.Culture.IRISH).map { it.name })
+        assertEquals(setOf("Aoife", "Olga", "Rhian", "Marigold"), nameQueue(ideas, votes, "me", GIRL).map { it.name }.toSet())
+    }
 }

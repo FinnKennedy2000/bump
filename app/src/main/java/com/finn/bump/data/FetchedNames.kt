@@ -1,7 +1,9 @@
 package com.finn.bump.data
 
+import com.finn.bump.domain.Culture
 import com.finn.bump.domain.NameGroup
 import com.finn.bump.domain.NameIdea
+import com.finn.bump.domain.cultureOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.ListSerializer
@@ -14,11 +16,31 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 
-/** The origin line on a card for a name fetched from the public API: it has no meaning to show. */
+/** The origin on names cached before fetched names carried a nationality; still loads, files under Other. */
 const val FETCHED_NAME = "Fetched name"
 
-private const val API = "https://randomuser.me/api/?results=100&inc=name,gender,nat" +
-    "&nat=gb,us,au,ie,ca,nz,fr,es,de,dk,fi,nl,no,ch,br&noinfo"
+/**
+ * randomuser.me's `nat` codes (it supports only a fixed list) and the origin each gives a
+ * fetched name. The culture a code belongs to is [cultureOf] its label, so there is one table.
+ */
+private val NATS = mapOf(
+    "GB" to "English", "US" to "English", "AU" to "English", "CA" to "English", "NZ" to "English",
+    "IE" to "Irish", "FR" to "French", "ES" to "Spanish", "MX" to "Mexican", "BR" to "Brazilian",
+    "DE" to "German", "CH" to "Swiss", "NL" to "Dutch",
+    "DK" to "Danish", "NO" to "Norwegian", "FI" to "Finnish",
+    "UA" to "Ukrainian", "RS" to "Serbian", "IN" to "Indian", "IR" to "Persian", "TR" to "Turkish",
+)
+
+/** Whether randomuser.me has any names for [culture]; Greek, Latin, Hebrew and the like do not. */
+fun hasOnlineNames(culture: Culture): Boolean = NATS.values.any { cultureOf(it) == culture }
+
+private fun api(culture: Culture?): String {
+    // The broad list stays what it was; the newer codes are only asked for by their culture.
+    val codes = if (culture == null) NATS.filterKeys { it !in setOf("MX", "IN", "IR", "TR", "UA", "RS") }.keys
+    else NATS.filter { cultureOf(it.value) == culture }.keys
+    return "https://randomuser.me/api/?results=100&inc=name,gender,nat" +
+        "&nat=${codes.joinToString(",") { it.lowercase() }}&noinfo"
+}
 
 // ponytail: plain letters only, so hyphenated and apostrophe names ("Jean-Pierre") are dropped;
 // widen the regex if the supply of names ever feels too narrow.
@@ -33,6 +55,7 @@ private val PLAIN_NAME = Regex("""\p{L}{2,15}""")
 fun parseFetchedNames(body: String, known: Set<String>): List<NameIdea> {
     val results = (Json.parseToJsonElement(body) as JsonObject).getValue("results") as JsonArray
     val seen = HashMap<String, NameGroup>()
+    val origins = HashMap<String, String>()
     val order = ArrayList<String>()
     for (r in results) {
         val o = r as JsonObject
@@ -40,16 +63,20 @@ fun parseFetchedNames(body: String, known: Set<String>): List<NameIdea> {
         if (!PLAIN_NAME.matches(first)) continue
         val key = first.lowercase()
         if (key in known) continue
+        val origin = NATS[o["nat"]?.jsonPrimitive?.content?.uppercase()] ?: FETCHED_NAME
         val group = when (o["gender"]?.jsonPrimitive?.content) {
             "male" -> NameGroup.BOY
             "female" -> NameGroup.GIRL
             else -> continue
         }
         val before = seen[key]
-        if (before == null) order += first.lowercase().replaceFirstChar { it.uppercase() }
+        if (before == null) {
+            order += first.lowercase().replaceFirstChar { it.uppercase() }
+            origins[key] = origin
+        }
         seen[key] = if (before != null && before != group) NameGroup.NEUTRAL else group
     }
-    return order.map { NameIdea(it, seen.getValue(it.lowercase()), FETCHED_NAME, "") }
+    return order.map { NameIdea(it, seen.getValue(it.lowercase()), origins.getValue(it.lowercase()), "") }
 }
 
 /**
@@ -64,10 +91,14 @@ class FetchedNames(private val file: File) {
     fun load(): List<NameIdea> =
         if (file.exists()) Json.decodeFromString(serializer, file.readText()) else emptyList()
 
-    /** Fetch one batch, add the new names to the cache and return the whole cache. */
-    suspend fun fetchMore(known: Set<String>): List<NameIdea> = withContext(Dispatchers.IO) {
+    /**
+     * Fetch one batch, limited to [culture] when given, add the new names to the cache and
+     * return the whole cache. A culture with no online names makes no request.
+     */
+    suspend fun fetchMore(known: Set<String>, culture: Culture? = null): List<NameIdea> = withContext(Dispatchers.IO) {
         val have = load()
-        val fresh = parseFetchedNames(download(), known + have.map { it.name.lowercase() })
+        if (culture != null && !hasOnlineNames(culture)) return@withContext have
+        val fresh = parseFetchedNames(download(api(culture)), known + have.map { it.name.lowercase() })
         val all = have + fresh
         val tmp = File(file.path + ".tmp")
         tmp.writeText(Json.encodeToString(serializer, all))
@@ -75,8 +106,8 @@ class FetchedNames(private val file: File) {
         all
     }
 
-    private fun download(): String {
-        val conn = (URL(API).openConnection() as HttpURLConnection).apply {
+    private fun download(url: String): String {
+        val conn = (URL(url).openConnection() as HttpURLConnection).apply {
             connectTimeout = 15_000
             readTimeout = 15_000
         }

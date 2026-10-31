@@ -7,6 +7,8 @@ import android.util.Log
 import java.io.File
 import java.io.OutputStream
 import com.finn.bump.data.FetchedNames
+import com.finn.bump.data.hasOnlineNames
+import com.finn.bump.domain.Culture
 import com.finn.bump.domain.NameIdea
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -154,15 +156,19 @@ class BumpViewModel(app: Application) : AndroidViewModel(app) {
      * Fetch a batch of names from the public API. Only called from the names screen, on
      * the button or when the deck runs out; never from the background job.
      */
-    fun fetchMoreNames(votes: List<NameVote>) {
+    fun fetchMoreNames(votes: List<NameVote>, culture: Culture? = null) {
         if (_fetchStatus.value == "") return
+        if (culture != null && !hasOnlineNames(culture)) {
+            _fetchStatus.value = "No online names for that origin; the bundled ones are all here"
+            return
+        }
         _fetchStatus.value = ""
         viewModelScope.launch {
             try {
                 val known = names.all.mapTo(HashSet()) { it.name.lowercase() } +
                     votes.map { it.name.lowercase() }
                 val before = _fetched.value.size
-                _fetched.value = fetchedNames.fetchMore(known)
+                _fetched.value = fetchedNames.fetchMore(known, culture)
                 _fetchStatus.value = if (_fetched.value.size == before) "No new names this time, try again" else null
             } catch (e: CancellationException) {
                 throw e

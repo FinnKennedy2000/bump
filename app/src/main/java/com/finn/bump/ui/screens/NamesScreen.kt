@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -59,6 +60,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.core.content.ContextCompat
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -69,6 +71,8 @@ import com.finn.bump.data.AppState
 import com.finn.bump.data.BabySex
 import com.finn.bump.data.ShortlistEntry
 import com.finn.bump.data.nameQueue
+import com.finn.bump.domain.Culture
+import com.finn.bump.domain.cultureOf
 import com.finn.bump.data.shortlist
 import com.finn.bump.domain.NameGroup
 import com.finn.bump.domain.NameIdea
@@ -191,16 +195,23 @@ private fun Discover(
 ) {
     val fetched by vm.fetched.collectAsStateWithLifecycle()
     val fetchStatus by vm.fetchStatus.collectAsStateWithLifecycle()
-    val queue = remember(state.nameVotes, me, group, fetched) {
-        nameQueue(vm.names.all + fetched, state.nameVotes, me, group)
+    var picked by rememberSaveable { mutableStateOf<Culture?>(null) }
+    // Only cultures that have names in this group get a chip; a pick the group lacks reads as All.
+    val cultures = remember(group, fetched) {
+        (vm.names.all + fetched).filter { it.group == group }.map { cultureOf(it.origin) }.toSet()
+            .let { present -> Culture.entries.filter { it in present } }
+    }
+    val culture = picked?.takeIf { it in cultures }
+    val queue = remember(state.nameVotes, me, group, fetched, culture) {
+        nameQueue(vm.names.all + fetched, state.nameVotes, me, group, culture)
     }
     // The deck is running low: top it up once per visit (a failure waits for the button, so
     // an offline phone does not retry in a loop). Network only happens here, on this screen.
-    var autoTried by remember { mutableStateOf(false) }
-    LaunchedEffect(queue.size <= 3, autoTried) {
+    var autoTried by remember(culture) { mutableStateOf(false) }
+    LaunchedEffect(queue.size <= 3, autoTried, culture) {
         if (queue.size <= 3 && !autoTried) {
             autoTried = true
-            vm.fetchMoreNames(state.nameVotes)
+            vm.fetchMoreNames(state.nameVotes, culture)
         }
     }
     var match by remember { mutableStateOf<String?>(null) }
@@ -233,6 +244,16 @@ private fun Discover(
             modifier = Modifier.padding(top = Spacing.p3),
         )
 
+        if (cultures.size > 1) {
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top = Spacing.p2),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.p2),
+            ) {
+                OriginChip("All", culture == null) { picked = null }
+                cultures.forEach { c -> OriginChip(c.label, culture == c) { picked = c } }
+            }
+        }
+
         val top = queue.firstOrNull()
         val scope = rememberCoroutineScope()
         val offset = remember(top?.name) { Animatable(Offset.Zero, Offset.VectorConverter) }
@@ -261,6 +282,7 @@ private fun Discover(
             if (top == null) {
                 Text(
                     if (fetchStatus == "") "Fetching more names…"
+                    else if (culture != null) "No more ${culture.label} names in this list. Try All."
                     else "That's every ${group.label().lowercase()} name so far. Tap More names, or add your own on Our list.",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -315,7 +337,7 @@ private fun Discover(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .clickable(enabled = fetchStatus != "", onClickLabel = "Fetch more names from the internet") {
-                    vm.fetchMoreNames(state.nameVotes)
+                    vm.fetchMoreNames(state.nameVotes, culture)
                 }
                 .padding(Spacing.p2),
         )
@@ -594,6 +616,28 @@ private fun Answer(who: String, v: Verdict?) {
         style = MaterialTheme.typography.labelMedium,
         color = if (v == Verdict.YES) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
     )
+}
+
+/** A filter chip. The box is 44dp tall for the touch target; the drawn pill inside is smaller. */
+@Composable
+private fun OriginChip(text: String, on: Boolean, onClick: () -> Unit) {
+    Box(
+        Modifier
+            .height(44.dp)
+            .clickable(enabled = !on, onClickLabel = "Only $text names", onClick = onClick)
+            .semantics { selected = on },
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text,
+            style = if (on) MaterialTheme.typography.labelLarge else MaterialTheme.typography.bodySmall,
+            color = if (on) LocalBumpExtras.current.onSelected else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .background(if (on) LocalBumpExtras.current.selected else Color.Transparent, MaterialTheme.shapes.small)
+                .border(1.dp, if (on) Color.Transparent else MaterialTheme.colorScheme.outline, MaterialTheme.shapes.small)
+                .padding(horizontal = Spacing.p3, vertical = Spacing.p1),
+        )
+    }
 }
 
 @Composable

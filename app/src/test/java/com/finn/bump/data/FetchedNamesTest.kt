@@ -19,8 +19,25 @@ class FetchedNamesTest {
         val got = parseFetchedNames(body, known = setOf("emma"))
         assertEquals(listOf("Laura", "Sam", "Al"), got.map { it.name })
         assertEquals(listOf(NameGroup.GIRL, NameGroup.NEUTRAL, NameGroup.BOY), got.map { it.group })
-        assertEquals(setOf(FETCHED_NAME), got.map { it.origin }.toSet())
+        assertEquals(setOf("English"), got.map { it.origin }.toSet())
         assertEquals("", got.first().meaning)
+    }
+
+    @Test
+    fun `origin comes from nat, and a missing nat keeps the legacy text`() {
+        val body = """{"results":[
+            {"gender":"male","name":{"first":"Oisin"},"nat":"IE"},
+            {"gender":"male","name":{"first":"Taras"},"nat":"UA"},
+            {"gender":"male","name":{"first":"Bob"}}
+        ]}"""
+        assertEquals(listOf("Irish", "Ukrainian", FETCHED_NAME), parseFetchedNames(body, emptySet()).map { it.origin })
+    }
+
+    @Test
+    fun `only cultures randomuser has names for are fetchable`() {
+        assertEquals(true, hasOnlineNames(com.finn.bump.domain.Culture.SLAVIC))
+        assertEquals(true, hasOnlineNames(com.finn.bump.domain.Culture.IRISH))
+        assertEquals(false, hasOnlineNames(com.finn.bump.domain.Culture.GREEK))
     }
 
     @Test

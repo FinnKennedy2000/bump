@@ -10,7 +10,7 @@ one record. Personal app, sideloaded, two users.
   for exactly one thing — the user's own sync backend in `backend/`. No analytics, no
   crash reporting, no third-party SDK, no ads. Until a space is paired the app makes no
   request at all, and it must stay fully usable if sync is never enabled. The one second use is user-triggered: the Names screen fetches a batch of first names from
-  the keyless public randomuser.me API on "More names" or when the deck runs out, never in the
+  the keyless public randomuser.me API on "More names" or when the deck runs out (limited to the chosen origin when a filter is set, via randomuser's `nat` codes), never in the
   background, cached in `filesDir/fetched_names.json` and not synced. The other is the
   user-tapped "Check for updates" in Settings: it reads the public GitHub releases of
   `FinnKennedy2000/bump` via api.github.com and downloads `bump.apk` (tag `build-<versionCode>`,

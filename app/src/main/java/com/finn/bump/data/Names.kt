@@ -1,8 +1,10 @@
 package com.finn.bump.data
 
+import com.finn.bump.domain.Culture
 import com.finn.bump.domain.NameGroup
 import com.finn.bump.domain.NameIdea
 import com.finn.bump.domain.Verdict
+import com.finn.bump.domain.cultureOf
 
 /** A name on the shared list, with each of your verdicts. [theirs] is null until they vote. */
 data class ShortlistEntry(val name: String, val group: NameGroup, val mine: Verdict?, val theirs: Verdict?) {
@@ -19,7 +21,7 @@ data class ShortlistEntry(val name: String, val group: NameGroup, val mine: Verd
  * would reorder everything), and it differs between the two of you so you are not both
  * looking at the same names in the same order.
  */
-fun nameQueue(ideas: List<NameIdea>, votes: List<NameVote>, me: String, group: NameGroup): List<NameIdea> {
+fun nameQueue(ideas: List<NameIdea>, votes: List<NameVote>, me: String, group: NameGroup, culture: Culture? = null): List<NameIdea> {
     val live = votes.filterNot { it.deleted }
     val judged = live.filter { it.voter == me }.mapTo(HashSet()) { it.name.lowercase() }
     val known = ideas.mapTo(HashSet()) { it.name.lowercase() }
@@ -29,7 +31,10 @@ fun nameQueue(ideas: List<NameIdea>, votes: List<NameVote>, me: String, group: N
         .filter { it.voter != me && it.group == group && it.name.lowercase() !in known && it.verdict != Verdict.NO }
         .distinctBy { it.name.lowercase() }
         .map { NameIdea(it.name, it.group, PARTNER_SUGGESTED, "") }
-    return (ideas.filter { it.group == group } + theirOwn)
+    // Partner-typed names have no known origin, so a culture filter leaves them out; they
+    // come back under All.
+    val pool = ideas.filter { it.group == group && (culture == null || cultureOf(it.origin) == culture) }
+    return (pool + if (culture == null) theirOwn else emptyList())
         .filter { it.name.lowercase() !in judged }
         .sortedBy { "$me:${it.name.lowercase()}".hashCode() }
 }
