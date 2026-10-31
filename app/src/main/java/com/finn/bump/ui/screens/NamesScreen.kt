@@ -463,9 +463,9 @@ private fun OurList(list: List<ShortlistEntry>, vm: BumpViewModel) {
     var draft by rememberSaveable { mutableStateOf("") }
     var group by rememberSaveable { mutableStateOf(NameGroup.NEUTRAL) }
 
-    fun add() {
+    fun add(verdict: Verdict) {
         if (draft.isNotBlank()) {
-            vm.vote(draft.trim().replaceFirstChar { it.uppercase() }, group, Verdict.YES)
+            vm.vote(draft.trim().replaceFirstChar { it.uppercase() }, group, verdict)
             draft = ""
         }
     }
@@ -507,20 +507,31 @@ private fun OurList(list: List<ShortlistEntry>, vm: BumpViewModel) {
                 singleLine = true,
                 label = { Text("Name") },
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { add() }),
+                keyboardActions = KeyboardActions(onDone = { add(Verdict.YES) }),
                 modifier = Modifier.weight(1f),
             )
-            // Same height as the field and its label's notch, so the two read as one row.
+            // Same height as the field and its label's notch, so the three read as one row.
+            Box(
+                Modifier
+                    .padding(top = 8.dp)
+                    .height(56.dp)
+                    .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.small)
+                    .clickable(onClickLabel = "Add as maybe") { add(Verdict.MAYBE) }
+                    .padding(horizontal = Spacing.p3),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text("Maybe", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            }
             Box(
                 Modifier
                     .padding(top = 8.dp)
                     .height(56.dp)
                     .background(MaterialTheme.colorScheme.primary, MaterialTheme.shapes.small)
-                    .clickable(onClickLabel = "Add to the list") { add() }
-                    .padding(horizontal = Spacing.p5),
+                    .clickable(onClickLabel = "Add as yes") { add(Verdict.YES) }
+                    .padding(horizontal = Spacing.p4),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("Add", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onPrimary)
+                Text("Yes", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onPrimary)
             }
         }
     }
