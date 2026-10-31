@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +28,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -82,6 +84,12 @@ import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 private enum class NamesTab(val label: String) { Discover("Discover"), List("Our list") }
+
+private fun NameGroup.heading() = when (this) {
+    NameGroup.GIRL -> "Girl names"
+    NameGroup.BOY -> "Boy names"
+    NameGroup.NEUTRAL -> "Neutral names"
+}
 
 private fun NameGroup.label() = when (this) {
     NameGroup.GIRL -> "Girls"
@@ -464,21 +472,19 @@ private fun OurList(list: List<ShortlistEntry>, vm: BumpViewModel) {
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Text(
-            "Names you've swiped that either of you likes. You only see your partner's answer once you've given yours.",
+            "Every name either of you likes, split into girls, boys and neutral. Names your partner likes show up here as soon as they sync; tap Say yes to agree.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = Spacing.p4),
         )
 
-        val matches = list.filter { it.isMatch }
-        val rest = list.filterNot { it.isMatch }
-        if (matches.isNotEmpty()) {
-            MicroLabel("You both like", Modifier.padding(top = Spacing.p5, bottom = Spacing.p1))
-            matches.forEach { Entry(it, vm) }
-        }
-        if (rest.isNotEmpty()) {
-            MicroLabel("On the list", Modifier.padding(top = Spacing.p5, bottom = Spacing.p1))
-            rest.forEach { Entry(it, vm) }
+        // One section per kind of name, matches first within each (shortlist already sorts them so).
+        NameGroup.entries.forEach { g ->
+            val inGroup = list.filter { it.group == g }
+            if (inGroup.isNotEmpty()) {
+                MicroLabel(g.heading(), Modifier.padding(top = Spacing.p5, bottom = Spacing.p1))
+                inGroup.forEach { Entry(it, vm) }
+            }
         }
         if (list.isEmpty()) {
             Text(
@@ -529,6 +535,9 @@ private fun Entry(e: ShortlistEntry, vm: BumpViewModel) {
     ) {
         Column(Modifier.weight(1f)) {
             Text(e.name, style = MaterialTheme.typography.headlineSmall)
+            if (e.isMatch) {
+                Text("You both like it", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+            }
             meaning?.let {
                 Text(
                     "${it.origin}, ${it.meaning}",
@@ -542,6 +551,11 @@ private fun Entry(e: ShortlistEntry, vm: BumpViewModel) {
             }
         }
         // Your own answer is the one you can change here: tap to swap yes and maybe.
+        if (e.mine == null || e.mine == Verdict.NO) {
+            // A name only your partner has judged: answer it straight from the list, yes or maybe.
+            MaybeChip { vm.vote(e.name, e.group, Verdict.MAYBE) }
+            Spacer(Modifier.width(Spacing.p2))
+        }
         VerdictChip(e.mine) {
             vm.vote(e.name, e.group, if (e.mine == Verdict.YES) Verdict.MAYBE else Verdict.YES)
         }
@@ -569,6 +583,20 @@ private fun Answer(who: String, v: Verdict?) {
         style = MaterialTheme.typography.labelMedium,
         color = if (v == Verdict.YES) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
     )
+}
+
+@Composable
+private fun MaybeChip(onClick: () -> Unit) {
+    Box(
+        Modifier
+            .height(32.dp)
+            .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.small)
+            .clickable(onClickLabel = "Say maybe", onClick = onClick)
+            .padding(horizontal = Spacing.p3),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text("Maybe", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+    }
 }
 
 @Composable

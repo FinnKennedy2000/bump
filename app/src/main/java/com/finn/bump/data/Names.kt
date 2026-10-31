@@ -3,7 +3,6 @@ package com.finn.bump.data
 import com.finn.bump.domain.NameGroup
 import com.finn.bump.domain.NameIdea
 import com.finn.bump.domain.Verdict
-import kotlin.random.Random
 
 /** A name on the shared list, with each of your verdicts. [theirs] is null until they vote. */
 data class ShortlistEntry(val name: String, val group: NameGroup, val mine: Verdict?, val theirs: Verdict?) {
@@ -14,9 +13,11 @@ data class ShortlistEntry(val name: String, val group: NameGroup, val mine: Verd
 /**
  * The names left for [me] to judge in [group], in a stable shuffled order.
  *
- * Seeded by voter, so the order is the same every time this phone opens the deck (no
- * name jumping to the top on a recomposition) but different between the two of you, so
- * you are not both looking at the same names in the same order.
+ * Ordered by a hash of voter and name, so each name has a fixed place for this phone: the
+ * order is the same every time the deck opens, judging a name only removes it (the card
+ * waiting underneath is the one that comes up — a seeded shuffle of the remaining names
+ * would reorder everything), and it differs between the two of you so you are not both
+ * looking at the same names in the same order.
  */
 fun nameQueue(ideas: List<NameIdea>, votes: List<NameVote>, me: String, group: NameGroup): List<NameIdea> {
     val live = votes.filterNot { it.deleted }
@@ -30,17 +31,17 @@ fun nameQueue(ideas: List<NameIdea>, votes: List<NameVote>, me: String, group: N
         .map { NameIdea(it.name, it.group, PARTNER_SUGGESTED, "") }
     return (ideas.filter { it.group == group } + theirOwn)
         .filter { it.name.lowercase() !in judged }
-        .shuffled(Random(me.hashCode()))
+        .sortedBy { "$me:${it.name.lowercase()}".hashCode() }
 }
 
 /** The origin line on a card for a name your partner added rather than one from the list. */
 const val PARTNER_SUGGESTED = "Suggested by your partner"
 
 /**
- * The names you have judged that either of you is keen on — a yes or a maybe from
- * someone. Only names *you* have voted on: the partner's answers stay hidden until you
- * have swiped that name yourself, which is what makes a match mean something. Names you
- * both turned down drop off; a name only one of you passed on stays.
+ * The names either of you is keen on — a yes or a maybe from someone. Your partner's
+ * answer shows from the moment it syncs, whether or not you have swiped that name yet;
+ * [ShortlistEntry.mine] is null until you do. Names you both turned down drop off; a name
+ * only one of you passed on stays.
  *
  * Matches first, then names with any yes, then maybes; alphabetical within each. Votes
  * from any voter other than [me] count as the partner's, latest first — a reinstall
@@ -60,7 +61,7 @@ fun shortlist(votes: List<NameVote>, me: String): List<ShortlistEntry> =
             val any = mine ?: theirs!!
             ShortlistEntry(any.name, any.group, mine?.verdict, theirs?.verdict)
         }
-        .filter { it.mine != null && (it.mine in KEEN || it.theirs in KEEN) }
+        .filter { it.mine in KEEN || it.theirs in KEEN }
         .sortedWith(
             compareBy<ShortlistEntry>(
                 { !it.isMatch },

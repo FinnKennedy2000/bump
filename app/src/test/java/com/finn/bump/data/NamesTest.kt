@@ -10,6 +10,7 @@ import com.finn.bump.domain.Verdict
 import com.finn.bump.domain.NameGroup
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -30,6 +31,16 @@ class NamesTest {
     }
 
     @Test
+    fun `judging the top name leaves the rest of the deck in the same order`() {
+        val many = (1..60).map { NameIdea("Name$it", GIRL, "", "") }
+        for (me in listOf("me", "voter-a", "voter-b")) {
+            val before = nameQueue(many, emptyList(), me, GIRL)
+            val after = nameQueue(many, listOf(vote(me, before.first().name, YES)), me, GIRL)
+            assertEquals(me, before.drop(1), after)
+        }
+    }
+
+    @Test
     fun `both saying yes is a match and sorts first`() {
         val list = shortlist(
             listOf(
@@ -45,9 +56,12 @@ class NamesTest {
     }
 
     @Test
-    fun `the partner's answers stay hidden until I have voted on the name`() {
-        val list = shortlist(listOf(vote("them", "Ada", YES)), "me")
-        assertTrue(list.isEmpty())
+    fun `a name only the partner likes shows on my list with my answer still empty`() {
+        val entry = shortlist(listOf(vote("them", "Ada", YES)), "me").single()
+        assertEquals("Ada", entry.name)
+        assertNull(entry.mine)
+        assertEquals(YES, entry.theirs)
+        assertFalse(entry.isMatch)
     }
 
     @Test
