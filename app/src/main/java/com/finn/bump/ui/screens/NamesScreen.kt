@@ -181,7 +181,20 @@ private fun Discover(
     group: NameGroup,
     onGroup: (NameGroup) -> Unit,
 ) {
-    val queue = remember(state.nameVotes, me, group) { nameQueue(vm.names.all, state.nameVotes, me, group) }
+    val fetched by vm.fetched.collectAsStateWithLifecycle()
+    val fetchStatus by vm.fetchStatus.collectAsStateWithLifecycle()
+    val queue = remember(state.nameVotes, me, group, fetched) {
+        nameQueue(vm.names.all + fetched, state.nameVotes, me, group)
+    }
+    // The deck is running low: top it up once per visit (a failure waits for the button, so
+    // an offline phone does not retry in a loop). Network only happens here, on this screen.
+    var autoTried by remember { mutableStateOf(false) }
+    LaunchedEffect(queue.size <= 3, autoTried) {
+        if (queue.size <= 3 && !autoTried) {
+            autoTried = true
+            vm.fetchMoreNames(state.nameVotes)
+        }
+    }
     var match by remember { mutableStateOf<String?>(null) }
     var lastVoted by rememberSaveable { mutableStateOf<String?>(null) }
     var lastVerdict by rememberSaveable { mutableStateOf<Verdict?>(null) }
@@ -239,7 +252,8 @@ private fun Discover(
         ) {
             if (top == null) {
                 Text(
-                    "That's every ${group.label().lowercase()} name in the list. Add your own on Our list.",
+                    if (fetchStatus == "") "Fetching more names…"
+                    else "That's every ${group.label().lowercase()} name so far. Tap More names, or add your own on Our list.",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -276,6 +290,27 @@ private fun Discover(
                 VoteButton("Yes", Modifier.weight(1f), filled = true) { fling(Verdict.YES) }
             }
         }
+
+        fetchStatus?.takeIf { it.isNotEmpty() }?.let {
+            Text(
+                it,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(top = Spacing.p2),
+            )
+        }
+        Text(
+            if (fetchStatus == "") "Fetching…" else "More names",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .clickable(enabled = fetchStatus != "", onClickLabel = "Fetch more names from the internet") {
+                    vm.fetchMoreNames(state.nameVotes)
+                }
+                .padding(Spacing.p2),
+        )
 
         // Offered only while the vote is still the one made here; changed on the list since,
         // there is nothing for this undo to undo.

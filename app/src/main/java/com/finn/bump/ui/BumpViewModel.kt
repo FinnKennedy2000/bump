@@ -4,7 +4,10 @@ import android.app.Application
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.util.Log
+import java.io.File
 import java.io.OutputStream
+import com.finn.bump.data.FetchedNames
+import com.finn.bump.domain.NameIdea
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.finn.bump.data.Appointment
@@ -126,6 +129,49 @@ class BumpViewModel(app: Application) : AndroidViewModel(app) {
     fun addContact(c: Contact) = launch { repo.addContact(c) }
 
     val names = Bump.nameTable(app)
+
+    private val fetchedNames = FetchedNames(File(app.filesDir, "fetched_names.json"))
+    private val _fetched = MutableStateFlow<List<NameIdea>>(emptyList())
+    /** Names fetched from the public API earlier; see [fetchMoreNames]. */
+    val fetched: StateFlow<List<NameIdea>> = _fetched
+
+    /** null when idle and fine, "" while fetching, otherwise the message to show. */
+    private val _fetchStatus = MutableStateFlow<String?>(null)
+    val fetchStatus: StateFlow<String?> = _fetchStatus
+
+    init {
+        viewModelScope.launch {
+            try {
+                _fetched.value = withContext(Dispatchers.IO) { fetchedNames.load() }
+            } catch (e: Exception) {
+                Log.w("Bump", "Reading fetched names failed", e)
+                _fetchStatus.value = "Fetched names couldn't be read"
+            }
+        }
+    }
+
+    /**
+     * Fetch a batch of names from the public API. Only called from the names screen, on
+     * the button or when the deck runs out; never from the background job.
+     */
+    fun fetchMoreNames(votes: List<NameVote>) {
+        if (_fetchStatus.value == "") return
+        _fetchStatus.value = ""
+        viewModelScope.launch {
+            try {
+                val known = names.all.mapTo(HashSet()) { it.name.lowercase() } +
+                    votes.map { it.name.lowercase() }
+                val before = _fetched.value.size
+                _fetched.value = fetchedNames.fetchMore(known)
+                _fetchStatus.value = if (_fetched.value.size == before) "No new names this time, try again" else null
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w("Bump", "Fetching names failed", e)
+                _fetchStatus.value = "Couldn't fetch more names. Check your connection."
+            }
+        }
+    }
 
     /** This phone's voter id; null for the moment before it is read. */
     private val _voter = MutableStateFlow<String?>(null)
