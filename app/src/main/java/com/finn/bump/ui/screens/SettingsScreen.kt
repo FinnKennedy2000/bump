@@ -1,5 +1,6 @@
 package com.finn.bump.ui.screens
 
+import android.content.ActivityNotFoundException
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,6 +23,9 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -30,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,8 +43,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.finn.bump.data.AppState
+import com.finn.bump.data.AppUpdater
+import com.finn.bump.data.Release
+import com.finn.bump.domain.buildNumber
+import com.finn.bump.domain.isNewer
+import kotlinx.coroutines.launch
+import java.io.IOException
 import com.finn.bump.data.Contact
 import com.finn.bump.data.displayName
 import com.finn.bump.data.sync.SyncStatus
@@ -166,6 +178,8 @@ fun SettingsScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+
+            AppUpdates()
 
             Advanced(
                 baseUrl = vm.baseUrl.collectAsStateWithLifecycle().value,
@@ -409,6 +423,104 @@ private fun Advanced(baseUrl: String, editable: Boolean, onBaseUrl: (String) -> 
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = Spacing.p3),
             )
+        }
+    }
+}
+
+private sealed interface UpdateState {
+    data object Idle : UpdateState
+    data object Checking : UpdateState
+    data object UpToDate : UpdateState
+    data class Available(val release: Release) : UpdateState
+    data object Downloading : UpdateState
+    data class Failed(val message: String) : UpdateState
+}
+
+/**
+ * Network only on the tap: no automatic check. ponytail: state lives in this composable, so
+ * leaving Settings mid-download drops it; hoist into the view model if that ever bites.
+ */
+@Composable
+private fun AppUpdates() {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val updater = remember { AppUpdater(context.applicationContext) }
+    val installed = remember { PackageInfoCompat.getLongVersionCode(context.packageManager.getPackageInfo(context.packageName, 0)).toInt() }
+    var state by remember { mutableStateOf<UpdateState>(UpdateState.Idle) }
+    var note by remember { mutableStateOf<String?>(null) }
+
+    fun fail(e: Exception) { state = UpdateState.Failed(e.message ?: "Something went wrong") }
+
+    Section("App updates") {
+        SettingRow("Version", "$installed", last = true) {}
+        Spacer(Modifier.height(Spacing.p2))
+        when (val s = state) {
+            UpdateState.Idle -> {}
+            UpdateState.Checking -> Text("Checking…", style = MaterialTheme.typography.bodyMedium)
+            UpdateState.UpToDate -> Text("You are up to date.", style = MaterialTheme.typography.bodyMedium)
+            UpdateState.Downloading -> Row(verticalAlignment = Alignment.CenterVertically) {
+                CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+                Text("Downloading…", Modifier.padding(start = Spacing.p3), style = MaterialTheme.typography.bodyMedium)
+            }
+            is UpdateState.Failed -> Text(
+                s.message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error,
+            )
+            is UpdateState.Available -> {
+                Text(
+                    "Update available — build ${buildNumber(s.release.tag)}",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                if (s.release.notes.isNotBlank()) {
+                    Text(
+                        s.release.notes,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = Spacing.p1),
+                    )
+                }
+            }
+        }
+        note?.let {
+            Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Spacer(Modifier.height(Spacing.p3))
+        val busy = state == UpdateState.Checking || state == UpdateState.Downloading
+        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.p3)) {
+            if (!busy) {
+                SmallButton("Check for updates") {
+                    note = null
+                    state = UpdateState.Checking
+                    scope.launch {
+                        try {
+                            val r = updater.latest()
+                            state = if (isNewer(installed, r.tag)) UpdateState.Available(r) else UpdateState.UpToDate
+                        } catch (e: IOException) {
+                            fail(e)
+                        }
+                    }
+                }
+            }
+            (state as? UpdateState.Available)?.let { avail ->
+                SmallButton("Install", filled = true) {
+                    note = null
+                    state = UpdateState.Downloading
+                    scope.launch {
+                        try {
+                            val apk = updater.download(avail.release)
+                            state = avail
+                            if (!updater.install(apk)) {
+                                note = "Allow Bump to install apps in the setting that just opened, then tap Install again."
+                            }
+                        } catch (e: IOException) {
+                            fail(e)
+                        } catch (e: ActivityNotFoundException) {
+                            fail(e)
+                        }
+                    }
+                }
+            }
         }
     }
 }

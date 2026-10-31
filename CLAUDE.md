@@ -9,7 +9,13 @@ one record. Personal app, sideloaded, two users.
   complete without a connection; sync only reconciles. The `INTERNET` permission exists
   for exactly one thing — the user's own sync backend in `backend/`. No analytics, no
   crash reporting, no third-party SDK, no ads. Until a space is paired the app makes no
-  request at all, and it must stay fully usable if sync is never enabled. Any *other*
+  request at all, and it must stay fully usable if sync is never enabled. The one second use is user-triggered: the Names screen fetches a batch of first names from
+  the keyless public randomuser.me API on "More names" or when the deck runs out, never in the
+  background, cached in `filesDir/fetched_names.json` and not synced. The other is the
+  user-tapped "Check for updates" in Settings: it reads the public GitHub releases of
+  `FinnKennedy2000/bump` via api.github.com and downloads `bump.apk` (tag `build-<versionCode>`,
+  cut by `scripts/release.sh`), then hands it to the system installer; that is what the
+  `REQUEST_INSTALL_PACKAGES` permission is for. Never automatic. Any *other*
   network use is a design change to discuss, not an implementation detail.
 - **The medical disclaimer stays.** Permanent and non-dismissible on the Now screen. The
   app shows population averages; it must never read as clinical advice.
