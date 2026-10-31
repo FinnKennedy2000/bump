@@ -41,6 +41,20 @@ class NamesTest {
     }
 
     @Test
+    fun `both keen means yes or maybe from each of us`() {
+        val list = shortlist(
+            listOf(
+                vote("me", "Ada", MAYBE), vote("them", "Ada", YES),
+                vote("me", "Ruby", MAYBE), vote("them", "Ruby", MAYBE),
+                vote("me", "Isla", YES), vote("them", "Isla", NO),
+                vote("them", "Iris", YES),
+            ),
+            "me",
+        )
+        assertEquals(setOf("Ada", "Ruby"), list.filter { it.isBothKeen }.map { it.name }.toSet())
+    }
+
+    @Test
     fun `both saying yes is a match and sorts first`() {
         val list = shortlist(
             listOf(
@@ -98,5 +112,43 @@ class NamesTest {
         val votes = listOf(vote("them", "Marigold", YES))
         assertEquals(listOf("Aoife"), nameQueue(ideas, votes, "me", GIRL, com.finn.bump.domain.Culture.IRISH).map { it.name })
         assertEquals(setOf("Aoife", "Olga", "Rhian", "Marigold"), nameQueue(ideas, votes, "me", GIRL).map { it.name }.toSet())
+    }
+
+    @Test
+    fun `awaiting me is the partner's current keen votes on names I have not answered`() {
+        val votes = listOf(
+            vote("them", "Ada", YES), vote("them", "Ruby", MAYBE), vote("them", "Isla", YES),
+            vote("them", "Iris", YES, at = 1), vote("them2", "Iris", NO, at = 2),
+            vote("them", "Leo", NO),
+            vote("me", "Isla", NO), vote("me", "Ruby", MAYBE),
+        )
+        assertEquals(listOf("Ada"), awaitingMe(votes, "me").map { it.name })
+    }
+
+    @Test
+    fun `the queue can be narrowed to the names awaiting me`() {
+        val votes = listOf(vote("them", "Ruby", YES))
+        val only = awaitingMe(votes, "me").mapTo(HashSet()) { it.name.lowercase() }
+        assertEquals(listOf("Ruby"), nameQueue(ideas, votes, "me", GIRL, only = only).map { it.name })
+        assertEquals(emptyList<NameIdea>(), nameQueue(ideas, votes, "me", GIRL, only = emptySet()))
+    }
+
+    @Test
+    fun `list sections put both keen apart, matches first, and respect the group filter`() {
+        val list = shortlist(
+            listOf(
+                vote("me", "Ada", MAYBE), vote("them", "Ada", YES),
+                vote("me", "Ruby", YES), vote("them", "Ruby", YES),
+                vote("them", "Iris", YES),
+                vote("me", "Leo", YES, group = BOY), vote("them", "Leo", YES, group = BOY),
+            ),
+            "me",
+        )
+        val all = listSections(list, null)
+        assertEquals(listOf("Leo", "Ruby", "Ada"), all.bothKeen.map { it.name })
+        assertEquals(listOf("Iris"), all.onlyOne.map { it.name })
+        val boys = listSections(list, BOY)
+        assertEquals(listOf("Leo"), boys.bothKeen.map { it.name })
+        assertTrue(boys.onlyOne.isEmpty())
     }
 }

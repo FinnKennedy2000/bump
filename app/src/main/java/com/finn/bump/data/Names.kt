@@ -10,6 +10,9 @@ import com.finn.bump.domain.cultureOf
 data class ShortlistEntry(val name: String, val group: NameGroup, val mine: Verdict?, val theirs: Verdict?) {
     /** Both said yes — the only thing the app calls a match. */
     val isMatch: Boolean get() = mine == Verdict.YES && theirs == Verdict.YES
+
+    /** Both of you said yes or maybe — a match, or one yes and one maybe, or both maybe. */
+    val isBothKeen: Boolean get() = mine in KEEN && theirs in KEEN
 }
 
 /**
@@ -21,7 +24,7 @@ data class ShortlistEntry(val name: String, val group: NameGroup, val mine: Verd
  * would reorder everything), and it differs between the two of you so you are not both
  * looking at the same names in the same order.
  */
-fun nameQueue(ideas: List<NameIdea>, votes: List<NameVote>, me: String, group: NameGroup, culture: Culture? = null): List<NameIdea> {
+fun nameQueue(ideas: List<NameIdea>, votes: List<NameVote>, me: String, group: NameGroup, culture: Culture? = null, only: Set<String>? = null): List<NameIdea> {
     val live = votes.filterNot { it.deleted }
     val judged = live.filter { it.voter == me }.mapTo(HashSet()) { it.name.lowercase() }
     val known = ideas.mapTo(HashSet()) { it.name.lowercase() }
@@ -35,8 +38,31 @@ fun nameQueue(ideas: List<NameIdea>, votes: List<NameVote>, me: String, group: N
     // come back under All.
     val pool = ideas.filter { it.group == group && (culture == null || cultureOf(it.origin) == culture) }
     return (pool + if (culture == null) theirOwn else emptyList())
-        .filter { it.name.lowercase() !in judged }
+        .filter { it.name.lowercase() !in judged && (only == null || it.name.lowercase() in only) }
         .sortedBy { "$me:${it.name.lowercase()}".hashCode() }
+}
+
+/**
+ * Your partner's current yes or maybe votes on names you have not answered yet, one per
+ * name. "Current" is their latest vote, as in [shortlist], so a yes they have since
+ * turned into a no does not wait for you.
+ */
+fun awaitingMe(votes: List<NameVote>, me: String): List<NameVote> {
+    val live = votes.filterNot { it.deleted }
+    val judged = live.filter { it.voter == me }.mapTo(HashSet()) { it.name.lowercase() }
+    return live.filter { it.voter != me }
+        .groupBy { it.name.lowercase() }
+        .mapNotNull { (key, vs) -> vs.maxByOrNull { it.updatedAt }?.takeIf { it.verdict in KEEN && key !in judged } }
+        .sortedBy { it.name.lowercase() }
+}
+
+/** The shared list split for display; see [listSections]. */
+data class ListSections(val bothKeen: List<ShortlistEntry>, val onlyOne: List<ShortlistEntry>)
+
+/** [list] (already ordered by [shortlist], matches first) narrowed to [group], if any, and split by [ShortlistEntry.isBothKeen]. */
+fun listSections(list: List<ShortlistEntry>, group: NameGroup?): ListSections {
+    val (both, one) = list.filter { group == null || it.group == group }.partition { it.isBothKeen }
+    return ListSections(both, one)
 }
 
 /** The origin line on a card for a name your partner added rather than one from the list. */
