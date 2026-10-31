@@ -70,6 +70,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.finn.bump.data.AppState
 import com.finn.bump.data.BabySex
 import com.finn.bump.data.ShortlistEntry
+import com.finn.bump.data.hasOnlineNames
 import com.finn.bump.data.nameQueue
 import com.finn.bump.domain.Culture
 import com.finn.bump.domain.cultureOf
@@ -196,10 +197,12 @@ private fun Discover(
     val fetched by vm.fetched.collectAsStateWithLifecycle()
     val fetchStatus by vm.fetchStatus.collectAsStateWithLifecycle()
     var picked by rememberSaveable { mutableStateOf<Culture?>(null) }
-    // Only cultures that have names in this group get a chip; a pick the group lacks reads as All.
+    // A chip for every culture this group already has names in, plus every one the internet
+    // can supply — otherwise an origin with no bundled names (Slavic neutral, say) could never
+    // be picked and so never fetched. Cultures with neither get no chip.
     val cultures = remember(group, fetched) {
         (vm.names.all + fetched).filter { it.group == group }.map { cultureOf(it.origin) }.toSet()
-            .let { present -> Culture.entries.filter { it in present } }
+            .let { present -> Culture.entries.filter { it in present || hasOnlineNames(it) } }
     }
     val culture = picked?.takeIf { it in cultures }
     val queue = remember(state.nameVotes, me, group, fetched, culture) {
@@ -282,6 +285,9 @@ private fun Discover(
             if (top == null) {
                 Text(
                     if (fetchStatus == "") "Fetching more names…"
+                    // The online source only says male or female, so it never supplies neutral names.
+                    else if (group == NameGroup.NEUTRAL && culture != null && hasOnlineNames(culture))
+                        "Online ${culture.label} names are girls' or boys' names. Pick Girls or Boys to swipe them."
                     else if (culture != null) "No more ${culture.label} names in this list. Try All."
                     else "That's every ${group.label().lowercase()} name so far. Tap More names, or add your own on Our list.",
                     style = MaterialTheme.typography.bodyLarge,
@@ -584,15 +590,20 @@ private fun Entry(e: ShortlistEntry, vm: BumpViewModel) {
             }
         }
         // Your own answer is the one you can change here: tap to swap yes and maybe.
+        if (e.mine == null) {
+            // A name only your partner has judged: answer it straight from the list, with a
+            // visible No beside Maybe and Yes (the small cross below is easy to miss).
+            AnswerChip("No", "Say no to ${e.name}") { vm.vote(e.name, e.group, Verdict.NO) }
+            Spacer(Modifier.width(Spacing.p2))
+        }
         if (e.mine == null || e.mine == Verdict.NO) {
-            // A name only your partner has judged: answer it straight from the list, yes or maybe.
-            MaybeChip { vm.vote(e.name, e.group, Verdict.MAYBE) }
+            AnswerChip("Maybe", "Say maybe") { vm.vote(e.name, e.group, Verdict.MAYBE) }
             Spacer(Modifier.width(Spacing.p2))
         }
         VerdictChip(e.mine) {
             vm.vote(e.name, e.group, if (e.mine == Verdict.YES) Verdict.MAYBE else Verdict.YES)
         }
-        Box(
+        if (e.mine != null) Box(
             Modifier
                 .size(44.dp)
                 .clickable(onClickLabel = "Say no to ${e.name}") { vm.vote(e.name, e.group, Verdict.NO) },
@@ -641,16 +652,16 @@ private fun OriginChip(text: String, on: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun MaybeChip(onClick: () -> Unit) {
+private fun AnswerChip(text: String, label: String, onClick: () -> Unit) {
     Box(
         Modifier
             .height(32.dp)
             .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.small)
-            .clickable(onClickLabel = "Say maybe", onClick = onClick)
+            .clickable(onClickLabel = label, onClick = onClick)
             .padding(horizontal = Spacing.p3),
         contentAlignment = Alignment.Center,
     ) {
-        Text("Maybe", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        Text(text, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
     }
 }
 
